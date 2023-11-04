@@ -1,6 +1,6 @@
 package ca.crit.treasurehunter;
-
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
@@ -9,37 +9,50 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class CircleBar {
-    float WIDTH, HEIGHT;
-    float x,y;
-    float speed_computer, speed_user;       // How fast the circles move forward
-    float angle_computer, angle_user;
-    float lastAngle, maxDistance;           // Last angle saves the last position of circle_computer when it exceed the maxDistance between both circles
-    float rangeHigh, rangeLow;              // If user circle is between the range high and low, parallax go on
-    float beginningAngle, endAngle;        // An init and fin angle for a range of the user movement trough the shoulder wheel
-    boolean goForward, goBack, stop;              // Flags to make go forward or go back the computer circle in a certain range
-    TextureRegion user, computer;
-    Texture userTexture, computerTexture, circleTexture;
-    public Sprite user_sprite, computer_sprite;
 
-    public CircleBar(float x, float y, float WIDTH, float HEIGHT, float speed_computer, float speed_user, float beginningAngle, float endAngle){
-        this.x = x;
-        this.y = y;
-        this.WIDTH = WIDTH;
-        this.HEIGHT = HEIGHT;
+    /*COMMON ATTRIBUTES*/
+    float WIDTH = 100, HEIGHT = 100;
+    float x = 0,y = 60;
+    Texture userTexture = new Texture("Objects/circle_user.png");
+    Texture computerTexture = new Texture("Objects/circle_computer.png");
+    Texture circleTexture = new Texture("Objects/circle.png");
+    TextureRegion user = new TextureRegion(userTexture);
+    TextureRegion computer = new TextureRegion(computerTexture);
+    Sprite user_sprite = new Sprite(user);
+    Sprite computer_sprite = new Sprite(computer);
+    float speed_computer, speed_user;       // How fast the circles move forward
+    float hunting_maxDistance;                      // Maximum Distance between both circles that allows the ship to hunt treasures and make parallax
+    float angle_computer, angle_user;       // Current angles of the user and computer
+    float beginningAngle;                   // Angle where circles begin the movement
+    int farAway_maxDistance;              // Maximum distance allow between both circles before computer circle stops to wait the user circle
+
+    /*GAME MODE: ANGLES ATTRIBUTES*/
+    float lastAngle;                        // Last angle saves the last position of circle_computer when it exceeds the "maxDistance"
+    float endAngle;                         // Limit angle where computer circle goes back to the begging angle to complete a loop
+    boolean goForward = true, goBack = false, stop = false;     // Flags to make go forward or go back the computer circle in a certain range
+
+    /*GAME MODE: LAPS ATTRIBUTES*/
+    String direction;
+    boolean flagLaps = true;
+
+    /*CONSTRUCTOR AND RENDER OF ANGLES GAME MODE*/
+    public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, float endAngle){
         this.speed_computer = speed_computer;
         this.speed_user = speed_user;
-        this.beginningAngle = beginningAngle;
-        this.endAngle = endAngle;
+        this.hunting_maxDistance = hunting_maxDistance;
+        this.farAway_maxDistance = farAway_maxDistance;
 
-        userTexture = new Texture("Objects/circle_user.png");
-        computerTexture = new Texture("Objects/circle_computer.png");
-        circleTexture = new Texture("Objects/circle.png");
+        /*TO AVOID THE PROBLEM OF CIRCLE COMPUTER DON'T GO ON WHEN END_ANGLE < BEGINNING_ANGLE*/
+        if(endAngle<beginningAngle){
+            this.endAngle = beginningAngle;
+            this.beginningAngle = endAngle;
+        }else {
+            this.beginningAngle = beginningAngle;
+            this.endAngle = endAngle;
+        }
 
-        user = new TextureRegion(userTexture);
-        computer = new TextureRegion(computerTexture);
-
-        user_sprite = new Sprite(user);
-        computer_sprite = new Sprite(computer);
+        angle_computer = beginningAngle;
+        angle_user = beginningAngle;
 
         /* MODIFY THE SIZE AND POSITION OF THE SPRITES*/
         user_sprite.setSize(WIDTH, HEIGHT);
@@ -52,67 +65,174 @@ public class CircleBar {
         /* SET THE RADIUS SPIN CIRCLES*/
         user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
         computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
-
-        angle_computer = beginningAngle +1;
-        angle_user = beginningAngle + 1;
-        goForward = true;
-
-        maxDistance = 40;   // In degrees
-
     }
-    public void render(float deltaTime, final SpriteBatch batch){
-        batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
-        computer_sprite.draw(batch);
-        user_sprite.draw(batch);
-        computer_sprite.setRotation(angle_computer);
-        user_sprite.setRotation(angle_user);
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) angle_user += deltaTime * speed_user;     // How user circle go forward
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) angle_user -= deltaTime * speed_user;     // How user circle go back
 
-        /*IF USER CIRCLE IS NEAR COMPUTER CIRCLE, PARALLAX HAPPENS*/
-        rangeHigh = angle_computer + 20;    // Maximum angle to make parallax
-        rangeLow = angle_computer - 20;     // Minimum angle to make parallax
-        if(angle_user < rangeHigh && angle_user > rangeLow) {
-            GameHandler.reached = true;
-        }else {
-            GameHandler.reached = false;
+    public void render_AnglesGame(float deltaTime, final SpriteBatch batch){
+        batch_sprite_rotations(batch);
+        user_movement(deltaTime);
+
+        //PARALLAX AND HUNTING HAPPENS
+        GameHandler.reached = isInRange(angle_computer, angle_user);     // Both circles are near each other
+
+        //RESET USER ANGLE VARIABLE ONLY
+        if(angle_user > 360){
+            angle_user = 0;
+        } else if (angle_user < 0) {
+            angle_user = 360;
         }
-
-        /*RANGE OF CIRCLES MOVEMENT TROUGH THE WHEEL*/
+        //----------------------------------
         lastAngle = angle_computer;
         if(goForward){
             angle_computer += deltaTime * speed_computer;
-            if(angle_computer >= endAngle){
-                goBack = true;
-                goForward = false;
-            }
-            if(Math.abs(angle_computer) - Math.abs(angle_user) > maxDistance) stop = true; else stop = false;
         }
         if(goBack){
             angle_computer -= deltaTime * speed_computer;
-            if(angle_computer < beginningAngle){
-                goForward = true;
-                goBack = false;
-                RoundTrips ++;
-            }
-            if( Math.abs(angle_user) - Math.abs(angle_computer) > maxDistance) stop = true; else stop = false;
         }
-        if(stop) {
-            goBack = false;
-            goForward = false;
+        if(stop){
             angle_computer = lastAngle;
-            if(Math.abs(angle_computer) - Math.abs(angle_user) < Math.abs(maxDistance)){
-                if( angle_computer > angle_user) goForward = true;
-                if( angle_computer < angle_user) goBack = true;
+        }
+        //----------------------------------
+        if(angle_computer < beginningAngle){        // Computer circle arrived to the beginning angle
+            goForward = true;                       // Computer circle has to go forward
+            goBack = false;
+            RoundTrips ++;
+        }else if (angle_computer > endAngle){       // Computer circle arrived to the end angle
+            goForward = false;
+            goBack = true;                          // Computer circle has to go back
+        }
+        //----------------------------------
+        stop = isFarAway(angle_computer, angle_user);// Computer circle has to go stop
+    }
+
+    /*CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/
+    public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, String direction){
+        this.speed_computer = speed_computer;
+        this.speed_user = speed_user;
+        this.hunting_maxDistance = hunting_maxDistance;
+        this.farAway_maxDistance = farAway_maxDistance;
+        this.beginningAngle = beginningAngle;
+        this.direction = direction;
+
+        angle_user = beginningAngle;
+        angle_computer = beginningAngle;
+
+        if(beginningAngle == 0 & direction.equals("izquierda")){    //TO RESOLVE START PROBLEMS OF GO ON AT COMPUTER CIRCLE WHEN BEGINNING ANGLE=0
+            angle_user = 360;                                       // IN IZQUIERDA DIRECTION MODE
+        }
+
+        /* MODIFY THE SIZE AND POSITION OF THE SPRITES*/
+        user_sprite.setSize(WIDTH, HEIGHT);
+        computer_sprite.setSize(WIDTH, HEIGHT);
+        user_sprite.setX(x);
+        user_sprite.setY(y);
+        computer_sprite.setX(x);
+        computer_sprite.setY(y);
+
+        /* SET THE RADIUS SPIN CIRCLES*/
+        user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
+        computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
+    }
+
+    public void render_LapsGame(float deltaTime, final SpriteBatch batch){
+        batch_sprite_rotations(batch);
+        user_movement(deltaTime);
+
+        //PARALLAX AND HUNTING HAPPENS
+        GameHandler.reached = isInRange(angle_computer, angle_user);     // Both circles are near each other
+
+        /*DIRECTIONS MOVEMENTS*/
+        lastAngle = angle_computer;
+
+        if(direction.equals("derecha")){
+            angle_computer -= deltaTime * speed_computer;
+            if (angle_computer <= 0) {
+                angle_computer = 360;
             }
+            /*COUNTING LAPS*/
+            if( angle_computer > beginningAngle & angle_computer < beginningAngle+5 & flagLaps){    // a 5° range to increment laps
+                RoundTrips ++;
+                flagLaps = false;
+            }
+            if(angle_computer <= beginningAngle-50){     // flagLaps becomes true after a lower beginning angle to avoid bounces
+                flagLaps = true;
+            }
+            if(stop){
+                angle_computer = lastAngle;
+            }
+        }
+        else if (direction.equals("izquierda")) {
+            angle_computer += deltaTime * speed_computer;
+            if(angle_computer >= 360){
+                angle_computer = 0;
+            }
+            /*COUNTING LAPS*/
+            if( angle_computer < beginningAngle & angle_computer > beginningAngle-5 & flagLaps){
+                RoundTrips ++;
+                flagLaps = false;
+            }
+            if(angle_computer >= beginningAngle+50){    // flagLaps becomes true after exceeds beginning angle to avoid bounces
+                flagLaps = true;
+            }
+            if(stop){   //(angle_computer < angle_user + 300) to not to stop when angle_computer=0° and angle_user = 360°
+                angle_computer = lastAngle;
+            }
+        }
+
+        /*STOP COMPUTER CIRCLE IF USER CIRCLE IS TOO FAR AWAY*/
+        stop = isFarAway(angle_computer, angle_user);
+
+        /*RESET USER ANGLES VARIABLES*/
+        if(angle_user > 360){
+            angle_user = 0;
+        }
+        if (angle_user < 0) {
+            angle_user = 360;
+        }
+
+    }
+
+    /*COMMON METHODS*/
+    private void user_movement(float deltaTime){
+        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+            angle_user += deltaTime * speed_user;     // How user circle go forward
+        }
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+            angle_user -= deltaTime * speed_user;     // How user circle go back
+        }
+    }
+
+    private void batch_sprite_rotations(SpriteBatch batch){
+        batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
+
+        computer_sprite.draw(batch);
+        user_sprite.draw(batch);
+
+        computer_sprite.setRotation(angle_computer);
+        user_sprite.setRotation(angle_user);
+    }
+
+    private boolean isInRange(float computer, float user){
+        float rangeHigh = computer + hunting_maxDistance;    // Maximum angle near to make parallax and hunting
+        float rangeLow = computer - hunting_maxDistance;     // Minimum angle near to make parallax and hunting
+        return user < rangeHigh && user > rangeLow;
+    }
+
+    private boolean isFarAway(float computer, float user){
+
+        // Circles are far away from each other under a problematic stop function to work correctly:
+        boolean riskZone = (computer>(360-farAway_maxDistance) && user<farAway_maxDistance) || (user>(360-farAway_maxDistance) && computer<farAway_maxDistance);
+        if(riskZone){
+            if(computer > user){                                //computer is forward user
+                return (360-(computer-user)) > farAway_maxDistance;          //exceeds the allowed distance between circles
+            }else {                                             //user is forward computer
+                return (360-(user-computer)) > farAway_maxDistance;          //exceeds the allowed distance between circles
+            }
+        }
+        // Circles are far away from each other under a normal stop function to work correctly:
+        else {
+            boolean computer_isForward = (computer-user) > farAway_maxDistance;
+            boolean user_isForward = (user-computer) > farAway_maxDistance;
+            return  computer_isForward || user_isForward;   //exceeds the allowed distance between circles
         }
     }
 }
-/*
-lastAngle = angle_computer;
-        if(angle_computer > angle_user + maxDistance){
-            angle_computer = lastAngle;
-        }else {
-            angle_computer += speed_computer;
-        }
- */

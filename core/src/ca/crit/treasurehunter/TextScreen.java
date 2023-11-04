@@ -3,13 +3,13 @@ package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.counter;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
-
+import static ca.crit.treasurehunter.GameHandler.playedTime_min;
+import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-
 public class TextScreen {
     private final BitmapFont treasureCounter;   //Creado con fuente
     private final BitmapFont elapsedTime;   //Creado con fuente
@@ -43,7 +43,14 @@ public class TextScreen {
         batch.draw(treasureTexture, 20, 410, 45, 45);
         treasureCounter.draw(batch, "x"+(int)GameHandler.counter, 70, 450);
         lapsCounter.draw(batch, "Vueltas: "+(int)GameHandler.RoundTrips, 250, 450);
-        elapsedTime.draw(batch, (int)GameHandler.playedTime + " s", 560, 450);
+        if(playedTime_sec < 60 & playedTime_min == 0){  //To see the time in seconds
+            elapsedTime.draw(batch, (int)GameHandler.playedTime_sec + " s", 560, 450);
+        }else if(playedTime_sec < 10){                  //To see the time in minutes
+            elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":0"+ (int)GameHandler.playedTime_sec + " min", 500, 450);
+        }else {
+            elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":"+ (int)GameHandler.playedTime_sec + " min", 500, 450);
+        }
+
 
         if(collided){
             counter ++;

@@ -5,7 +5,8 @@ import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.counter;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
-import static ca.crit.treasurehunter.GameHandler.playedTime;
+import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
+import static ca.crit.treasurehunter.GameHandler.playedTime_min;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
@@ -30,12 +31,14 @@ public class GameScreen implements Screen {
 
     /*OBJECTS*/
     private final Treasures treasures;
-    private final CircleBar circleBar;
+    private final CircleBar circleBarAngles;
+    private final CircleBar circleBarLaps;
 
     /*TEXT*/
     private TextScreen textScreen;
 
     public static boolean flag;
+    public static String gameMode;
 
     GameScreen(){
         /*SCREEN*/
@@ -48,11 +51,13 @@ public class GameScreen implements Screen {
         ship = new Ship(130, 70, 100, 40);
         /*OBJECTS*/
         treasures = new Treasures(580, 35, 35);
-        circleBar = new CircleBar(0, 60, 100, 100, 30, 80, 0, 180);
+        circleBarAngles = new CircleBar( 40, 55, 15,50, 270, 90);
+        circleBarLaps = new CircleBar(40, 55, 15,50, 200, "izquierda");
         /*TEXT*/
         textScreen = new TextScreen();
-
+        /*OTHERS*/
         flag = true;
+        gameMode = "angles";  // To choose the game mode: "angles" or "laps"
 
     }
     @Override
@@ -62,7 +67,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        playedTime += delta;     // How many time has passed since the game started
+        playedTime_sec += delta;     // How many time has passed since the game started
+        if(playedTime_sec >= 60){
+            playedTime_min ++;
+            playedTime_sec = 0;
+        }
 
         /*COUNT THE TREASURES COLLECTED*/
         if(Intersector.overlaps(treasures.rectangle, ship.rectangle) && flag){
@@ -78,17 +87,16 @@ public class GameScreen implements Screen {
         }
 
         batch.begin();
-            background.render(delta, batch);
-            treasures.render(delta, batch);
-            ship.render(batch);
-            circleBar.render(delta,batch);
-            textScreen.render(batch);
+        background.render(delta, batch);
+        treasures.render(delta, batch);
+        ship.render(batch);
+        textScreen.render(batch);
+        if(gameMode.equals("angles")){
+            circleBarAngles.render_AnglesGame(delta, batch);
+        } else if (gameMode.equals("laps")) {
+            circleBarLaps.render_LapsGame(delta, batch);
+        }
         batch.end();
-        /*SABER POSICIÓN DE CURSOR CON CLICK EN EL MAPA
-        if(Gdx.input.isTouched()){
-            System.out.println("x: " + Gdx.input.getX());
-            System.out.println("y: " + (-1)*(Gdx.input.getY() - 479));
-        }*/
     }
 
     @Override
@@ -116,3 +124,8 @@ public class GameScreen implements Screen {
 
     }
 }
+       /*SABER POSICIÓN DE CURSOR CON CLICK EN EL MAPA
+        if(Gdx.input.isTouched()){
+            System.out.println("x: " + Gdx.input.getX());
+            System.out.println("y: " + (-1)*(Gdx.input.getY() - 479));
+        }*/

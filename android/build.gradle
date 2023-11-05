@@ -19,7 +19,7 @@ android {
     }
     defaultConfig {
         applicationId "ca.crit.treasurehunter"
-        minSdkVersion 14
+        minSdkVersion 19
         targetSdkVersion 33
         versionCode 1
         versionName "1.0"
@@ -29,6 +29,10 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        renderScript true
+        aidl true
     }
 }
 
@@ -84,6 +88,10 @@ task run(type: Exec) {
 
     def adb = path + "/platform-tools/adb"
     commandLine "$adb", 'shell', 'am', 'start', '-n', 'ca.crit.treasurehunter/ca.crit.treasurehunter.AndroidLauncher'
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }
 
 eclipse.project.name = appName + "-android"

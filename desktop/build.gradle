@@ -41,6 +41,9 @@ task dist(type: Jar) {
     with jar
 }
 
+dependencies {
+    implementation project(path: ':core')
+}
 
 dist.dependsOn classes
 

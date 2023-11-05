@@ -1,5 +1,6 @@
 package ca.crit.treasurehunter;
 
+import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.reached;
 import static ca.crit.treasurehunter.GameHandler.treasurePosition;
 
@@ -25,14 +26,14 @@ public class Ship {
     }
 
     public void render(final SpriteBatch batch){
-        batch.draw(shipTexture, (float)x, (float)y, 100, 80);
+        batch.draw(shipTexture, x, y, WIDTH*2, HEIGHT*3);
         lastPosition = y;
         if (reached) {                                              // If user_circle angle follows the computer_circle angle
             y = treasurePosition;                                   // Ship follows the treasure position to capture it
             rectangle.set(x, y, WIDTH, HEIGHT);             // The collision ship-treasure will occurred
         }else {
             y = lastPosition;                                    // Ship keeps in its initial position
-            rectangle.set(x, y + 200, WIDTH, HEIGHT);    // Any collision won't occurred no matter the ship position
+            rectangle.set(x, y + 100, WIDTH, HEIGHT);    // Any collision won't occurred no matter the ship position
         }
     }
 

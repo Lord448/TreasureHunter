@@ -11,8 +11,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class CircleBar {
 
     /*COMMON ATTRIBUTES*/
-    float WIDTH = 100, HEIGHT = 100;
-    float x = 0,y = 60;
+    float WIDTH = 20, HEIGHT = 20;
+    float x = 3,y = 4;
     Texture userTexture = new Texture("Objects/circle_user.png");
     Texture computerTexture = new Texture("Objects/circle_computer.png");
     Texture circleTexture = new Texture("Objects/circle.png");
@@ -29,8 +29,8 @@ public class CircleBar {
     /*GAME MODE: ANGLES ATTRIBUTES*/
     float lastAngle;                        // Last angle saves the last position of circle_computer when it exceeds the "maxDistance"
     float endAngle;                         // Limit angle where computer circle goes back to the begging angle to complete a loop
-    boolean goForward = true, goBack = false, stop = false;     // Flags to make go forward or go back the computer circle in a certain range
-
+    boolean goForward = false, goBack = false, stop = false;     // Flags to make go forward or go back the computer circle in a certain range
+    private boolean normalCount = false;     //normalCount happens when beginningAngle<endAngle
     /*GAME MODE: LAPS ATTRIBUTES*/
     String direction;
     boolean flagLaps = true;
@@ -46,11 +46,14 @@ public class CircleBar {
         if(endAngle<beginningAngle){
             this.endAngle = beginningAngle;
             this.beginningAngle = endAngle;
+            normalCount = false;
+            goBack = true;
         }else {
             this.beginningAngle = beginningAngle;
             this.endAngle = endAngle;
+            normalCount = true;
+            goForward = true;
         }
-
         angle_computer = beginningAngle;
         angle_user = beginningAngle;
 
@@ -81,6 +84,22 @@ public class CircleBar {
             angle_user = 360;
         }
         //----------------------------------
+        if(angle_computer < beginningAngle){        // Computer circle arrived to the beginning angle
+            goForward = true;                       // Computer circle has to go forward
+            goBack = false;
+            if(normalCount == true){
+                RoundTrips ++;
+            }
+        }else if (angle_computer > endAngle){       // Computer circle arrived to the end angle
+            goForward = false;
+            goBack = true;                          // Computer circle has to go back
+            if(normalCount == false){
+                RoundTrips ++;
+            }
+        }
+        //----------------------------------
+        stop = isFarAway(angle_computer, angle_user);// Computer circle has to go stop
+        //----------------------------------
         lastAngle = angle_computer;
         if(goForward){
             angle_computer += deltaTime * speed_computer;
@@ -91,17 +110,6 @@ public class CircleBar {
         if(stop){
             angle_computer = lastAngle;
         }
-        //----------------------------------
-        if(angle_computer < beginningAngle){        // Computer circle arrived to the beginning angle
-            goForward = true;                       // Computer circle has to go forward
-            goBack = false;
-            RoundTrips ++;
-        }else if (angle_computer > endAngle){       // Computer circle arrived to the end angle
-            goForward = false;
-            goBack = true;                          // Computer circle has to go back
-        }
-        //----------------------------------
-        stop = isFarAway(angle_computer, angle_user);// Computer circle has to go stop
     }
 
     /*CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/

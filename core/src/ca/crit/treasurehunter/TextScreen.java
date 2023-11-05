@@ -1,5 +1,7 @@
 package ca.crit.treasurehunter;
 
+import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
+import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.counter;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
@@ -22,15 +24,15 @@ public class TextScreen {
         /*POINTS COUNTER*/
         treasureTexture = new Texture("Objects/treasure.png");
         treasureCounter = new BitmapFont(Gdx.files.internal("Fonts/counter.fnt"), Gdx.files.internal("Fonts/counter.png"), false);
-        treasureCounter.getData().setScale(1f, 1f);
+        treasureCounter.getData().setScale(0.2f, 0.2f);
 
         /*ELAPSED PLAYED TIME*/
         elapsedTime = new BitmapFont(Gdx.files.internal("Fonts/counter.fnt"), Gdx.files.internal("Fonts/counter.png"), false);
-        elapsedTime.getData().setScale(1f, 1f);
+        elapsedTime.getData().setScale(0.2f, 0.2f);
 
         /* LAPS COUNTER*/
         lapsCounter = new BitmapFont(Gdx.files.internal("Fonts/counter.fnt"), Gdx.files.internal("Fonts/counter.png"), false);
-        lapsCounter.getData().setScale(1f, 1f);
+        lapsCounter.getData().setScale(0.2f, 0.2f);
 
         /*ONOMATOPOEIA COLLISION*/
         collisionTexture = new Texture("Fonts/onomat_bien.png");
@@ -40,15 +42,19 @@ public class TextScreen {
     }
 
     public void render(final SpriteBatch batch){
-        batch.draw(treasureTexture, 20, 410, 45, 45);
-        treasureCounter.draw(batch, "x"+(int)GameHandler.counter, 70, 450);
-        lapsCounter.draw(batch, "Vueltas: "+(int)GameHandler.RoundTrips, 250, 450);
-        if(playedTime_sec < 60 & playedTime_min == 0){  //To see the time in seconds
-            elapsedTime.draw(batch, (int)GameHandler.playedTime_sec + " s", 560, 450);
-        }else if(playedTime_sec < 10){                  //To see the time in minutes
-            elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":0"+ (int)GameHandler.playedTime_sec + " min", 500, 450);
+        batch.draw(treasureTexture, 5, WORLD_WIDTH/2 - 5, WORLD_HEIGHT/8, WORLD_HEIGHT/9);
+        treasureCounter.draw(batch, "x" + GameHandler.counter, 15, WORLD_WIDTH/2 + 2);
+        lapsCounter.draw(batch, "Vueltas: "+ GameHandler.RoundTrips, WORLD_WIDTH/3 + 7, WORLD_HEIGHT - 6);
+
+        //To see the time in seconds
+        if(playedTime_sec < 60 & playedTime_min == 0){
+            elapsedTime.draw(batch, (int)GameHandler.playedTime_sec + " s", WORLD_WIDTH/2 + 50, WORLD_HEIGHT - 6);
+        }
+        //To see the time in minutes
+        else if(playedTime_sec < 10){
+            elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":0"+ (int)GameHandler.playedTime_sec + " min", WORLD_WIDTH/2 + 35, WORLD_HEIGHT - 6);
         }else {
-            elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":"+ (int)GameHandler.playedTime_sec + " min", 500, 450);
+            elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":"+ (int)GameHandler.playedTime_sec + " min", WORLD_WIDTH/2 + 35, WORLD_HEIGHT - 6);
         }
 
 
@@ -56,7 +62,7 @@ public class TextScreen {
             counter ++;
         }
         if(onomatopoeiaAppear){
-            batch.draw(collisionTexture, 150, GameHandler.treasurePosition, 100, 100);
+            batch.draw(collisionTexture, 34, GameHandler.treasurePosition-4, WORLD_HEIGHT/4, WORLD_HEIGHT/4);
             timer += Gdx.graphics.getDeltaTime();
             if(timer >=2){
                 onomatopoeiaAppear = false;

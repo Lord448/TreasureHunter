@@ -1,5 +1,6 @@
 package ca.crit.treasurehunter;
 
+import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.treasurePosition;
 import static ca.crit.treasurehunter.GameHandler.treasureAppeared;
@@ -26,9 +27,9 @@ public class Treasures {
         this.HEIGHT = HEIGHT;
 
         initialPosition = x;
-        speed = 100;
+        speed = 20;
         appearTime = MathUtils.random(3, 5);
-        randomY = MathUtils.random(15, 138);
+        randomY = MathUtils.random(2, WORLD_HEIGHT/4);
         treasureTexture= new Texture("Objects/treasure.png");
 
         treasureAppeared = true;
@@ -42,7 +43,7 @@ public class Treasures {
             treasureAppeared = false;               // Theres not a treasure in the map
             collided = false;                       // Reset the collision
             x = initialPosition;                    // Next treasure has to appear at the same X position than the first one
-            randomY = MathUtils.random(15, 138);    // Choose the next Y treasure position
+            randomY = MathUtils.random(2, WORLD_HEIGHT/4);    // Choose the next Y treasure position
             treasurePosition = randomY;             // Where did the treasure appear? So the ship can capture it
         }
         if(x<-42 || collided || x == initialPosition){      // Timer starts if treasure disappeared, collided or the next treasure is ready to appear
@@ -54,11 +55,12 @@ public class Treasures {
         }
         if(treasureAppeared){
             time = 0;               // Reset timer
-            batch.draw(treasureTexture, (float) x, randomY, 35, 35);
-            rectangle.set((x), (randomY), WIDTH, HEIGHT);
+            batch.draw(treasureTexture, x, randomY, WIDTH, HEIGHT);
+            rectangle.set(x, randomY, WIDTH, HEIGHT);
             x -= deltaTime*speed;
         }
         //System.out.println("tesoro: " + randomY);
+        //System.out.println("X: " + x);
     }
 
     /*

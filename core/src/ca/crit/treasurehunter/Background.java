@@ -41,36 +41,36 @@ public class Background {
         staticBackgrounds[0] = new Texture("Background/sky.png");
         staticBackgrounds[1] = new Texture("Background/franja.png");
 
-        scrollingSpeed =(float)(WORLD_WIDTH/4);
+        scrollingSpeed =(float)(WORLD_HEIGHT/7);
     }
 
     public void render(float deltaTime, final SpriteBatch batch){
+        backgroundOffsets [0]+= deltaTime * scrollingSpeed / 4;     //NUBES
         if(GameHandler.reached){
-            backgroundOffsets [0]+= deltaTime * scrollingSpeed / 4;     //NUBES
             backgroundOffsets [1] += deltaTime * scrollingSpeed / 2;    //ROCA 1
             backgroundOffsets [2] += deltaTime * scrollingSpeed / 3;    //ROCA 2
         }
         time += Gdx.graphics.getDeltaTime();    //Océano
         for(int layer=0; layer<backgroundOffsets.length; layer++){
-            if(backgroundOffsets[layer] >= WORLD_WIDTH*5){
+            if(backgroundOffsets[layer] >= WORLD_WIDTH){
                 backgroundOffsets[layer] = 0;
             }
             /*SKY*/
-            batch.draw(staticBackgrounds[0],0, 0, WORLD_WIDTH*5, WORLD_HEIGHT*7);
+            batch.draw(staticBackgrounds[0],0, 0, WORLD_WIDTH, WORLD_HEIGHT);
             /*NUBES*/
-            batch.draw(dynamicBackgrounds[0], -backgroundOffsets[0], 0, WORLD_WIDTH*5, WORLD_HEIGHT*7);
-            batch.draw(dynamicBackgrounds[0], -backgroundOffsets[0] + WORLD_WIDTH*5, 0, WORLD_WIDTH*5, WORLD_HEIGHT*7);
+            batch.draw(dynamicBackgrounds[0], -backgroundOffsets[0], 0, WORLD_WIDTH, WORLD_HEIGHT);
+            batch.draw(dynamicBackgrounds[0], -backgroundOffsets[0] + WORLD_WIDTH, 0, WORLD_WIDTH, WORLD_HEIGHT);
             /*ANIMACIÓN OCEANO*/
             TextureRegion currentOceanFrame = (TextureRegion) oceanAnimation.getKeyFrame(time, true);
-            batch.draw(currentOceanFrame, -4, 0, WORLD_WIDTH*5 + 4, (float)(WORLD_HEIGHT*2.8));
+            batch.draw(currentOceanFrame, -4, 0, WORLD_WIDTH + 4, WORLD_HEIGHT/2);
             /*FRANJA - EVITA DEFECTO DE FRAMES EN OCEANO*/
-            batch.draw(staticBackgrounds[1],0, 198, WORLD_WIDTH*5, WORLD_HEIGHT/3);
+            batch.draw(staticBackgrounds[1],0, 29, WORLD_WIDTH, WORLD_HEIGHT/10);
             /*ROCA 2 - DERECHA*/
-            batch.draw(dynamicBackgrounds[2], -backgroundOffsets[2], 30, WORLD_WIDTH*5, WORLD_HEIGHT*7);
-            batch.draw(dynamicBackgrounds[2], -backgroundOffsets[2] + WORLD_WIDTH*5, 30, WORLD_WIDTH*5, WORLD_HEIGHT*7);
+            batch.draw(dynamicBackgrounds[2], -backgroundOffsets[2], 5, WORLD_WIDTH, WORLD_HEIGHT);
+            batch.draw(dynamicBackgrounds[2], -backgroundOffsets[2] + WORLD_WIDTH, 5, WORLD_WIDTH, WORLD_HEIGHT);
             /*ROCA 1 - IZQUIERDA*/
-            batch.draw(dynamicBackgrounds[1], -backgroundOffsets[1], 183, WORLD_WIDTH*3, WORLD_HEIGHT*4);
-            batch.draw(dynamicBackgrounds[1], -backgroundOffsets[1] + WORLD_WIDTH*5, 183, WORLD_WIDTH*3, WORLD_HEIGHT*4);
+            batch.draw(dynamicBackgrounds[1], -backgroundOffsets[1], 26, (float) (WORLD_WIDTH/1.5), (float) (WORLD_HEIGHT/1.5));
+            batch.draw(dynamicBackgrounds[1], -backgroundOffsets[1] + WORLD_WIDTH, 26, (float) (WORLD_WIDTH/1.5), (float) (WORLD_HEIGHT/1.5));
         }
 
     }

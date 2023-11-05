@@ -8,6 +8,7 @@ import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
 import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
 import static ca.crit.treasurehunter.GameHandler.playedTime_min;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -48,10 +49,10 @@ public class GameScreen implements Screen {
         batch = new SpriteBatch();
         background = new Background();
         /*CHARACTERS*/
-        ship = new Ship(130, 70, 100, 40);
+        ship = new Ship(29, 7, 10, 5);
         /*OBJECTS*/
-        treasures = new Treasures(580, 35, 35);
-        circleBarAngles = new CircleBar( 40, 55, 15,50, 270, 90);
+        treasures = new Treasures(WORLD_WIDTH+70, 7, 6);
+        circleBarAngles = new CircleBar( 40, 55, 15,50, 90, 270);
         circleBarLaps = new CircleBar(40, 55, 15,50, 200, "izquierda");
         /*TEXT*/
         textScreen = new TextScreen();
@@ -97,6 +98,10 @@ public class GameScreen implements Screen {
             circleBarLaps.render_LapsGame(delta, batch);
         }
         batch.end();
+        if(Gdx.input.isTouched()) {
+            System.out.println("x: " + Gdx.input.getX());
+            System.out.println("y: " + (-1) * (Gdx.input.getY() - 479));
+        }
     }
 
     @Override

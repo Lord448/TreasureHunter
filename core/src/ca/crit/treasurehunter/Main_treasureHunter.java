@@ -8,10 +8,12 @@ import com.badlogic.gdx.utils.ScreenUtils;
 
 public class Main_treasureHunter extends Game {
 	GameScreen gameScreen;
+	MainMenu menu;
 	@Override
 	public void create () {
 		gameScreen = new GameScreen();
-		setScreen(gameScreen);
+		menu = new MainMenu();
+		setScreen(menu);
 	}
 
 	@Override

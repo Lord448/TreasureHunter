@@ -11,5 +11,7 @@ public class AndroidLauncher extends AndroidApplication {
 		super.onCreate(savedInstanceState);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new Main_treasureHunter(), config);
+
+		GameHandler.init(GameHandler.MOBILE_ENV);
 	}
 }

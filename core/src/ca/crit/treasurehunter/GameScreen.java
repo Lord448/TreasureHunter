@@ -36,7 +36,7 @@ public class GameScreen implements Screen {
     private final CircleBar circleBarLaps;
 
     /*TEXT*/
-    private TextScreen textScreen;
+    private final TextScreen textScreen;
 
     public static boolean flag;
     public static String gameMode;

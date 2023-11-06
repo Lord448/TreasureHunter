@@ -20,4 +20,12 @@ public class GameHandler {
     public static int counter;
 
     public static boolean onomatopoeiaAppear;
+
+    /*OTHERS*/
+    public static int environment;
+    public static final int MOBILE_ENV = 1;
+
+    public static void init(int env){
+        GameHandler.environment = env;
+    }
 }

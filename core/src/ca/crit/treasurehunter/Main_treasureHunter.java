@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 
+import java.util.Objects;
+
 public class Main_treasureHunter extends Game {
 	GameScreen gameScreen;
 	MainMenu menu;
@@ -13,12 +15,20 @@ public class Main_treasureHunter extends Game {
 	public void create () {
 		gameScreen = new GameScreen();
 		menu = new MainMenu();
-		setScreen(menu);
+
 	}
 
 	@Override
 	public void render () {
 		super.render();
+		if(Objects.equals(GameHandler.screen_MainMenu, "gameScreen")){
+			setScreen(gameScreen);
+			GameHandler.screen_MainMenu = "";
+		}
+		if(Objects.equals(GameHandler.screen_MainMenu, "menu")){
+			setScreen(menu);
+			GameHandler.screen_MainMenu = "";
+		}
 	}
 	
 	@Override

@@ -2,11 +2,16 @@ package ca.crit.treasurehunter;
 
 import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
 import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
+import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.counter;
+import static ca.crit.treasurehunter.GameHandler.endAngle_MainMenu;
+import static ca.crit.treasurehunter.GameHandler.gameMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
 import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
 import static ca.crit.treasurehunter.GameHandler.playedTime_min;
+import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
+import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -14,6 +19,10 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -32,14 +41,18 @@ public class GameScreen implements Screen {
 
     /*OBJECTS*/
     private final Treasures treasures;
-    private final CircleBar circleBarAngles;
-    private final CircleBar circleBarLaps;
+    private CircleBar circleBarAngles;
+    private CircleBar circleBarLaps;
 
     /*TEXT*/
     private final TextScreen textScreen;
 
+    /*OTHERS*/
     public static boolean flag;
-    public static String gameMode;
+
+    private TextButton btnEndGame;
+    private Skin skin;
+    private Stage stage;
 
     GameScreen(){
         /*SCREEN*/
@@ -52,18 +65,21 @@ public class GameScreen implements Screen {
         ship = new Ship(29, 7, 10, 5);
         /*OBJECTS*/
         treasures = new Treasures(WORLD_WIDTH+70, 7, 6);
-        circleBarAngles = new CircleBar( 40, 55, 15,50, 90, 270);
-        circleBarLaps = new CircleBar(40, 55, 15,50, 200, "izquierda");
+
         /*TEXT*/
         textScreen = new TextScreen();
         /*OTHERS*/
         flag = true;
-        gameMode = "angles";  // To choose the game mode: "angles" or "laps"
 
+        /*STAGE*/
+        stage = new Stage(new StretchViewport(720,480, new OrthographicCamera()));
+        skin = new Skin(Gdx.files.internal("Menu/UISkin/uiskin.json"));
     }
     @Override
     public void show() {
-
+        circleBarAngles = new CircleBar( speed_MainMenu, 70, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
+        circleBarLaps = new CircleBar(speed_MainMenu, 70, 15,50, 200, rotationMode_MainMenu);
+        stage_constructor();
     }
 
     @Override
@@ -92,16 +108,14 @@ public class GameScreen implements Screen {
         treasures.render(delta, batch);
         ship.render(batch);
         textScreen.render(batch);
-        if(gameMode.equals("angles")){
+        if(gameMode_MainMenu.equals("angles")){
             circleBarAngles.render_AnglesGame(delta, batch);
-        } else if (gameMode.equals("laps")) {
+        } else if (gameMode_MainMenu.equals("laps")) {
             circleBarLaps.render_LapsGame(delta, batch);
         }
         batch.end();
-        if(Gdx.input.isTouched()) {
-            System.out.println("x: " + Gdx.input.getX());
-            System.out.println("y: " + (-1) * (Gdx.input.getY() - 479));
-        }
+
+        renderGraphics(delta);
     }
 
     @Override
@@ -128,6 +142,17 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
 
+    }
+
+    private void stage_constructor(){
+        btnEndGame = new TextButton("Finalizar", skin);
+        btnEndGame.setPosition(700, 400);
+        stage.addActor(btnEndGame);
+    }
+    private void renderGraphics(float delta){
+        Gdx.input.setInputProcessor(stage);
+        stage.draw();
+        stage.act(delta);
     }
 }
        /*SABER POSICIÓN DE CURSOR CON CLICK EN EL MAPA

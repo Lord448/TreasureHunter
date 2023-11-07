@@ -124,7 +124,7 @@ public class CircleBar {
         angle_user = beginningAngle;
         angle_computer = beginningAngle;
 
-        if(beginningAngle == 0 & direction.equals("izquierda")){    //TO RESOLVE START PROBLEMS OF GO ON AT COMPUTER CIRCLE WHEN BEGINNING ANGLE=0
+        if(beginningAngle == 0 & direction =="izquierda"){    //TO RESOLVE START PROBLEMS OF GO ON AT COMPUTER CIRCLE WHEN BEGINNING ANGLE=0
             angle_user = 360;                                       // IN IZQUIERDA DIRECTION MODE
         }
 

@@ -1,6 +1,8 @@
 package ca.crit.treasurehunter;
 
 
+import com.badlogic.gdx.Screen;
+
 public class GameHandler {
     public static int WORLD_WIDTH = 128;
     public static int WORLD_HEIGHT = 72;
@@ -24,6 +26,14 @@ public class GameHandler {
     /*OTHERS*/
     public static int environment;
     public static final int MOBILE_ENV = 1;
+
+    /*MENU*/
+    public static String gameMode_MainMenu;
+    public static Integer beginningAngle_MainMenu = 0;
+    public static Integer endAngle_MainMenu = 0;
+    public static Integer speed_MainMenu = 0;
+    public static String screen_MainMenu = "menu";
+    public static String rotationMode_MainMenu;
 
     public static void init(int env){
         GameHandler.environment = env;

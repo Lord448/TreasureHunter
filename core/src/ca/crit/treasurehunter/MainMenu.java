@@ -47,8 +47,8 @@ public class MainMenu implements Screen {
     private SpriteBatch batch;
     private Background background;
     private Stage initStage, configStage, anglesStage, lapsStage;
-    private Skin skin, skin2;
-    private GameText tittleText, cardText, gameModeText;
+    private Skin skin;
+    private GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -56,17 +56,24 @@ public class MainMenu implements Screen {
         batch = new SpriteBatch();
         background = new Background();
         skin = new Skin(Gdx.files.internal("Menu/UISkin/uiskin.json"));
-        skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        //skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+
         /*GAMETEXT*/
         tittleText = new GameText("TREASURE HUNTER", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
         tittleText.setXY(34,67);
         tittleText.setScaleXY(0.18f,0.18f);
         cardText = new GameText("No.Carnet", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
-        cardText.setXY(37,65);
+        cardText.setXY(49,65);
         cardText.setScaleXY(0.18f,0.18f);
         gameModeText = new GameText("Modo de juego", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
-        gameModeText.setXY(37,57);
-        gameModeText.setScaleXY(0.18f,0.18f);
+        gameModeText.setXY(45,50);
+        gameModeText.setScaleXY(0.17f,0.17f);
+        beginningAngleText = new GameText("Ángulo de Inicio", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        beginningAngleText.setXY(45,50);
+        beginningAngleText.setScaleXY(0.17f,0.17f);
+        endAngleText = new GameText("Ángulo de Fin", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        endAngleText.setXY(45,50);
+        endAngleText.setScaleXY(0.17f,0.17f);//todo
 
         /*STAGES*/
         initStage = new Stage(uiViewport);
@@ -160,47 +167,68 @@ public class MainMenu implements Screen {
     }
 
     private void InitialMenu_construct(){
-        ImageButton imgPlay = new ImageButton(skin2);
-        imgPlay.setSize(170,150);
-        imgPlay.getStyle().imageUp =
+        final Skin skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        final ImageButton btnPlay = new ImageButton(skin2);
+        btnPlay.setSize(170,150);
+        btnPlay.getStyle().imageUp =
                 new TextureRegionDrawable(
                         new TextureRegion(
                                 new Texture(Gdx.files.internal("Menu/ImageButtons/play_up.png"))));
-        imgPlay.getStyle().imageDown =
+        btnPlay.getStyle().imageDown =
                 new TextureRegionDrawable(
                         new TextureRegion(
                                 new Texture(Gdx.files.internal("Menu/ImageButtons/play_down.png"))));
-        imgPlay.setPosition(270, 140);
+        btnPlay.setPosition(270, 140);
 
-        imgPlay.addListener(new ChangeListener() {
+        btnPlay.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 menuState = MenuState.configurationState;
             }
         });
-        initStage.addActor(imgPlay);
+        initStage.addActor(btnPlay);
     }
     private void ConfigurationMenu_construct(){
-        TextField txtCard = new TextField("", skin);
-        txtCard.setPosition(viewportWidth/2 + 20,viewportHeight/2 + 160);
+        final Skin skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        /*LABEL ERROR*/
+        Label lbError = new Label("Selecciona un modo de juego", skin2);
+        lbError.setPosition(viewportWidth/3 - 10, viewportHeight/5);
 
+        /*TEXTFIELD - NO.CARNET*/
+        TextField txtCard = new TextField("", skin);
+        txtCard.setPosition(viewportWidth/3 +45,viewportHeight/2 + 120);
+        configStage.addActor(txtCard);
+        /*CHECKBOX 1 - ANGLES MODE*/
         CheckBox cbAnglesMode = new CheckBox(" Angulos", skin);
-        cbAnglesMode.setPosition(viewportWidth/3 + 50, viewportHeight/2 + 70);
+        cbAnglesMode.setPosition(viewportWidth/3 + 50, viewportHeight/2 + 20);
         configStage.addActor(cbAnglesMode);
+
+        /*CHECKBOX 2 - LAPS MODE*/
         CheckBox cbLapsMode = new CheckBox("Vueltas Completas", skin);
+        cbLapsMode.setPosition(viewportWidth/3 + 50, viewportHeight/2 - 10);
         configStage.addActor(cbLapsMode);
 
+        /*IMAGEBUTTON - NEXT*/
+        ImageButton btnNext = new ImageButton(skin2);
+        btnNext.setSize(100,100);
+        btnNext.setPosition((viewportWidth/7)*5, viewportHeight/9);
+        btnNext.getStyle().imageUp =
+                new TextureRegionDrawable(
+                        new TextureRegion(
+                                new Texture(Gdx.files.internal("Menu/ImageButtons/right_up.png"))));
+        btnNext.getStyle().imageDown =
+                new TextureRegionDrawable(
+                        new TextureRegion(
+                                new Texture(Gdx.files.internal("Menu/ImageButtons/right_down.png"))));
+        configStage.addActor(btnNext);
 
-
-        TextButton btnNext = new TextButton("Siguiente", skin);
-
-        configStage.addActor(txtCard);
-
+        /*LISTENERS*/
         cbAnglesMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 cbLapsMode.setChecked(false);
                 GameHandler.gameMode_MainMenu = "angles";
+                lbError.setText("");
             }
         });
         cbLapsMode.addListener(new ChangeListener() {
@@ -208,49 +236,74 @@ public class MainMenu implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 cbAnglesMode.setChecked(false);
                 GameHandler.gameMode_MainMenu = "laps";
+                lbError.setText("");
             }
         });
+
         btnNext.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (GameHandler.gameMode_MainMenu == "angles"){
+                if(GameHandler.gameMode_MainMenu == "angles"){
                     menuState = MenuState.anglesSate;
                 }
                 if(GameHandler.gameMode_MainMenu == "laps"){
                     menuState = MenuState.lapsState;
                 }
+                if(cbAnglesMode.isChecked() == false && cbLapsMode.isChecked() == false){
+                    menuState = MenuState.configurationState;
+                    lbError.setText("Selecciona un modo de juego");
+                    configStage.addActor(lbError);
+                }
             }
         });
-
     }
     private void AnglesMenu_construct(){
-        TextButton btnStart = new TextButton("Comenzar", skin);
-        TextButton btnReturn = new TextButton("Regresar", skin);
-        Label lbFrom = new Label("Angulo de inicio: ", skin);
-        Label lbUntil= new Label("Angulo Final: ", skin);
-        Label lbSpeed = new Label("Velocidad: ", skin);
+        /*TEXTFIELD - BEGINNING ANGLE*/
         TextField txtBeginningAngle = new TextField("", skin);
+        txtBeginningAngle.setPosition((viewportWidth/4)*3,(viewportHeight/4)*3);
+        anglesStage.addActor(txtBeginningAngle);
+
+        /*TEXTFIELD - END ANGLE*/
         TextField txtEndAngle = new TextField("", skin);
+        txtEndAngle.setPosition((viewportWidth/4)*3,(viewportHeight/5)*3);
+        anglesStage.addActor(txtEndAngle);
+
+       /*LIST - SPEED MODES*/
         List lstSpeed = new List<>(skin);
         lstSpeed.setItems("Facil", "Normal", "Dificil");
+        lstSpeed.setPosition((viewportWidth/4)*3, (viewportHeight/6)*3);
 
-        Table table = new Table();
-        table.setFillParent(true);
-        table.setPosition(0,0);
+        /*IMAGEBUTTON - START*/
+        final Skin skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        ImageButton btnStart = new ImageButton(skin2);
+        btnStart.setSize(100,100);
+        btnStart.setPosition((viewportWidth/7)*5, viewportHeight/9);
+        btnStart.getStyle().imageUp =
+                new TextureRegionDrawable(
+                        new TextureRegion(
+                                new Texture(Gdx.files.internal("Menu/ImageButtons/accept_up.png"))));
+        btnStart.getStyle().imageDown =
+                new TextureRegionDrawable(
+                        new TextureRegion(
+                                new Texture(Gdx.files.internal("Menu/ImageButtons/accept_down.png"))));
+        anglesStage.addActor(btnStart);
 
-        table.add(lbFrom);
-        table.add(txtBeginningAngle);
-        table.row();
-        table.add(lbUntil);
-        table.add(txtEndAngle);
-        table.row();
-        table.add(lbSpeed);
-        table.add(lstSpeed);
-        table.row();
-        table.add(btnReturn);
-        table.add(btnStart);
-        anglesStage.addActor(table);
+        /*IMAGEBUTTON - GO BACK*/
+        final Skin skin3 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        ImageButton btnReturn = new ImageButton(skin3);
+        btnReturn.setSize(100,100);
+        btnReturn.setPosition((viewportWidth/7)*1, viewportHeight/9);
+        btnReturn.getStyle().imageUp =
+                new TextureRegionDrawable(
+                        new TextureRegion(
+                                new Texture(Gdx.files.internal("Menu/ImageButtons/left_up.png"))));
+        btnReturn.getStyle().imageDown =
+                new TextureRegionDrawable(
+                        new TextureRegion(
+                                new Texture(Gdx.files.internal("Menu/ImageButtons/left_down.png"))));
+        anglesStage.addActor(btnReturn);
 
+        /*LISTENERS*/
         btnStart.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -339,4 +392,5 @@ public class MainMenu implements Screen {
             }
         });
     }
+
 }

@@ -4,35 +4,25 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.awt.Color;
-
-import javax.swing.ButtonGroup;
-import javax.swing.plaf.basic.BasicBorders;
-import javax.swing.plaf.basic.BasicRadioButtonUI;
+import ca.crit.treasurehunter.Resources.ImageButton;
+import ca.crit.treasurehunter.Resources.PrintTag;
 
 public class MainMenu implements Screen {
+    private final String TAG = "MainMenu";
     private enum MenuState{
         initialState,
         configurationState,
@@ -47,8 +37,10 @@ public class MainMenu implements Screen {
     private SpriteBatch batch;
     private Background background;
     private Stage initStage, configStage, anglesStage, lapsStage;
-    private Skin skin;
-    private GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText;
+    private final Skin skin, skinGlassy;
+    private final String skinPath = "Menu/UISkin/uiskin.json";
+    private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
+    private GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -56,7 +48,7 @@ public class MainMenu implements Screen {
         batch = new SpriteBatch();
         background = new Background();
         skin = new Skin(Gdx.files.internal("Menu/UISkin/uiskin.json"));
-        //skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        skinGlassy = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
 
         /*GAMETEXT*/
         tittleText = new GameText("TREASURE HUNTER", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
@@ -68,12 +60,17 @@ public class MainMenu implements Screen {
         gameModeText = new GameText("Modo de juego", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
         gameModeText.setXY(45,50);
         gameModeText.setScaleXY(0.17f,0.17f);
-        beginningAngleText = new GameText("Ángulo de Inicio", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
-        beginningAngleText.setXY(45,50);
+        beginningAngleText = new GameText("Angulo de Inicio", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        beginningAngleText.setXY(44,65);
         beginningAngleText.setScaleXY(0.17f,0.17f);
-        endAngleText = new GameText("Ángulo de Fin", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        endAngleText = new GameText("Angulo de Fin", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
         endAngleText.setXY(45,50);
-        endAngleText.setScaleXY(0.17f,0.17f);//todo
+        endAngleText.setScaleXY(0.17f,0.17f);
+        speedText = new GameText("Velocidad", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        speedText.setScaleXY(0.17f,0.17f);
+        rotationText = new GameText("Sentido de Giro", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        rotationText.setXY(44,65);
+        rotationText.setScaleXY(0.17f,0.17f);
 
         /*STAGES*/
         initStage = new Stage(uiViewport);
@@ -83,7 +80,6 @@ public class MainMenu implements Screen {
 
         /*THE FIRST STAGE TO SEE*/
         menuState = MenuState.initialState;
-
     }
     @Override
     public void show() {
@@ -106,10 +102,15 @@ public class MainMenu implements Screen {
                 gameModeText.draw(batch);
                 break;
             case anglesSate:
-
+                beginningAngleText.draw(batch);
+                endAngleText.draw(batch);
+                speedText.setXY(48,25);
+                speedText.draw(batch);
                 break;
             case lapsState:
-
+                speedText.setXY(48,50);
+                speedText.draw(batch);
+                rotationText.draw(batch);
                 break;
         }
         batch.end();
@@ -167,23 +168,14 @@ public class MainMenu implements Screen {
     }
 
     private void InitialMenu_construct(){
-        final Skin skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
-        final ImageButton btnPlay = new ImageButton(skin2);
-        btnPlay.setSize(170,150);
-        btnPlay.getStyle().imageUp =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/play_up.png"))));
-        btnPlay.getStyle().imageDown =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/play_down.png"))));
+        ImageButton btnPlay = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/play_up.png", "Menu/ImageButtons/play_down.png");
         btnPlay.setPosition(270, 140);
-
+        btnPlay.setSize(170,150);
         btnPlay.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                menuState = MenuState.configurationState;
+                menuState = MainMenu.MenuState.configurationState;
             }
         });
         initStage.addActor(btnPlay);
@@ -209,17 +201,10 @@ public class MainMenu implements Screen {
         configStage.addActor(cbLapsMode);
 
         /*IMAGEBUTTON - NEXT*/
-        ImageButton btnNext = new ImageButton(skin2);
-        btnNext.setSize(100,100);
+        ImageButton btnNext = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/right_up.png", "Menu/ImageButtons/right_down.png");
         btnNext.setPosition((viewportWidth/7)*5, viewportHeight/9);
-        btnNext.getStyle().imageUp =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/right_up.png"))));
-        btnNext.getStyle().imageDown =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/right_down.png"))));
+        btnNext.setSize(100,100);
         configStage.addActor(btnNext);
 
         /*LISTENERS*/
@@ -239,10 +224,9 @@ public class MainMenu implements Screen {
                 lbError.setText("");
             }
         });
-
         btnNext.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 if(GameHandler.gameMode_MainMenu == "angles"){
                     menuState = MenuState.anglesSate;
                 }
@@ -260,53 +244,41 @@ public class MainMenu implements Screen {
     private void AnglesMenu_construct(){
         /*TEXTFIELD - BEGINNING ANGLE*/
         TextField txtBeginningAngle = new TextField("", skin);
-        txtBeginningAngle.setPosition((viewportWidth/4)*3,(viewportHeight/4)*3);
+        txtBeginningAngle.setPosition((viewportWidth/5)*2,((viewportHeight/4)*3)-5);
         anglesStage.addActor(txtBeginningAngle);
 
         /*TEXTFIELD - END ANGLE*/
         TextField txtEndAngle = new TextField("", skin);
-        txtEndAngle.setPosition((viewportWidth/4)*3,(viewportHeight/5)*3);
+        txtEndAngle.setPosition((viewportWidth/5)*2,(viewportHeight/4)*2);
         anglesStage.addActor(txtEndAngle);
 
        /*LIST - SPEED MODES*/
         List lstSpeed = new List<>(skin);
         lstSpeed.setItems("Facil", "Normal", "Dificil");
-        lstSpeed.setPosition((viewportWidth/4)*3, (viewportHeight/6)*3);
+        Table table = new Table();
+        table.setFillParent(true);
+        table.setPosition(-10,-viewportHeight/3);
+        table.add(lstSpeed);
+        anglesStage.addActor(table);
 
-        /*IMAGEBUTTON - START*/
-        final Skin skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
-        ImageButton btnStart = new ImageButton(skin2);
-        btnStart.setSize(100,100);
-        btnStart.setPosition((viewportWidth/7)*5, viewportHeight/9);
-        btnStart.getStyle().imageUp =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/accept_up.png"))));
-        btnStart.getStyle().imageDown =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/accept_down.png"))));
-        anglesStage.addActor(btnStart);
+        /*IMAGEBUTTON - ACCEPT*/
+        ImageButton btnAccept = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/accept_up.png", "Menu/ImageButtons/accept_down.png");
+        btnAccept.setPosition((viewportWidth/7)*5, viewportHeight/9);
+        btnAccept.setSize(100,100);
+        anglesStage.addActor(btnAccept);
 
         /*IMAGEBUTTON - GO BACK*/
-        final Skin skin3 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
-        ImageButton btnReturn = new ImageButton(skin3);
-        btnReturn.setSize(100,100);
+        ImageButton btnReturn = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/left_up.png", "Menu/ImageButtons/left_down.png");
         btnReturn.setPosition((viewportWidth/7)*1, viewportHeight/9);
-        btnReturn.getStyle().imageUp =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/left_up.png"))));
-        btnReturn.getStyle().imageDown =
-                new TextureRegionDrawable(
-                        new TextureRegion(
-                                new Texture(Gdx.files.internal("Menu/ImageButtons/left_down.png"))));
+        btnReturn.setSize(100,100);
         anglesStage.addActor(btnReturn);
 
         /*LISTENERS*/
-        btnStart.addListener(new ChangeListener() {
+        btnAccept.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText());
                 GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText());
                 if(lstSpeed.getSelectedIndex() == 0){
@@ -319,41 +291,72 @@ public class MainMenu implements Screen {
                     GameHandler.speed_MainMenu = 60;
                 }
                 GameHandler.screen_MainMenu = "gameScreen";
+                PrintTag.Print(TAG, String.valueOf(GameHandler.speed_MainMenu));
             }
         });
-
         btnReturn.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 menuState = MenuState.configurationState;
             }
         });
     }
     private void LapsMenu_construct(){
-        TextButton btnStart = new TextButton("comenzar", skin);
-        TextButton btnReturn = new TextButton("Regresar", skin);
-        Label lbRotation = new Label("Sentido del giro: ", skin);
-        Label lbSpeed = new Label("Velocidad: ", skin);
+        /*CHECKBOX - ROTATION MODE*/
         CheckBox cbLeft = new CheckBox("Izquierda", skin);
         CheckBox cbRight = new CheckBox("Derecha", skin);
+        Table tableCheckboxes = new Table();
+        tableCheckboxes.setFillParent(true);
+        tableCheckboxes.setPosition(0,(viewportHeight/4)+20);
+        tableCheckboxes.add(cbLeft);
+        tableCheckboxes.add(cbRight);
+        lapsStage.addActor(tableCheckboxes);
+
+        /*LIST - SPEED MODES*/
         List lstSpeed = new List<>(skin);
         lstSpeed.setItems("Facil", "Normal", "Dificil");
+        Table tableSpeed = new Table();
+        tableSpeed.setFillParent(true);
+        tableSpeed.setPosition(-5,viewportHeight/60);
+        tableSpeed.add(lstSpeed);
+        lapsStage.addActor(tableSpeed);
 
-        Table table = new Table();
-        table.setFillParent(true);
-        table.setPosition(0,0);
+        /*IMAGEBUTTON - ACCEPT*/
+        ImageButton btnAccept = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/accept_up.png", "Menu/ImageButtons/accept_down.png");
+        btnAccept.setPosition((viewportWidth/7)*5, viewportHeight/9);
+        btnAccept.setSize(100,100);
+        lapsStage.addActor(btnAccept);
 
-        table.add(lbRotation);
-        table.row();
-        table.add(cbLeft);
-        table.add(cbRight);
-        table.row();
-        table.add(lbSpeed);
-        table.add(lstSpeed);
-        table.row();
-        table.add(btnReturn);
-        table.add(btnStart);
-        lapsStage.addActor(table);
+        /*IMAGEBUTTON - GO BACK*/
+        ImageButton btnReturn = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/left_up.png", "Menu/ImageButtons/left_down.png");
+        btnReturn.setPosition((viewportWidth/7)*1, viewportHeight/9);
+        btnReturn.setSize(100,100);
+        lapsStage.addActor(btnReturn);
+
+        /*LISTENERS*/
+        btnAccept.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                GameHandler.screen_MainMenu = "gameScreen";
+                if(lstSpeed.getSelectedIndex() == 0){
+                    GameHandler.speed_MainMenu = 30;
+                }
+                if(lstSpeed.getSelectedIndex() == 1){
+                    GameHandler.speed_MainMenu = 45;
+                }
+                if(lstSpeed.getSelectedIndex() == 2){
+                    GameHandler.speed_MainMenu = 60;
+                }
+            }
+        });
+        btnReturn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                menuState = MenuState.configurationState;
+            }
+        });
 
         cbLeft.addListener(new ChangeListener() {
             @Override
@@ -369,28 +372,5 @@ public class MainMenu implements Screen {
                 GameHandler.rotationMode_MainMenu = "derecha";
             }
         });
-
-        btnStart.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                GameHandler.screen_MainMenu = "gameScreen";
-                if(lstSpeed.getSelectedIndex() == 0){
-                    GameHandler.speed_MainMenu = 30;
-                }
-                if(lstSpeed.getSelectedIndex() == 1){
-                    GameHandler.speed_MainMenu = 45;
-                }
-                if(lstSpeed.getSelectedIndex() == 2){
-                    GameHandler.speed_MainMenu = 60;
-                }
-            }
-        });
-        btnReturn.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                menuState = MenuState.configurationState;
-            }
-        });
     }
-
 }

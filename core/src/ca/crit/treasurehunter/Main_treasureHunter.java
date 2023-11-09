@@ -15,7 +15,6 @@ public class Main_treasureHunter extends Game {
 	public void create () {
 		gameScreen = new GameScreen();
 		menu = new MainMenu();
-
 	}
 
 	@Override

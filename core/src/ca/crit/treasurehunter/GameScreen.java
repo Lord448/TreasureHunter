@@ -19,10 +19,12 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -145,9 +147,15 @@ public class GameScreen implements Screen {
     }
 
     private void stage_constructor(){
-        btnEndGame = new TextButton("Finalizar", skin);
-        btnEndGame.setPosition(700, 400);
+        btnEndGame = new TextButton("Finalizar Sesion", skin);
+        btnEndGame.setPosition(550, 460);
         stage.addActor(btnEndGame);
+        btnEndGame.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                //todo
+            }
+        });
     }
     private void renderGraphics(float delta){
         Gdx.input.setInputProcessor(stage);

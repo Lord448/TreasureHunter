@@ -91,6 +91,8 @@ public class MainMenu implements Screen {
 
     @Override
     public void render(float delta) {
+        PrintTag.Print(TAG, "init: " + GameHandler.beginningAngle_MainMenu);
+        PrintTag.Print(TAG, "f: " + GameHandler.endAngle_MainMenu);
         batch.begin();
             background.render(delta, batch);
         switch (menuState){
@@ -184,12 +186,12 @@ public class MainMenu implements Screen {
         final Skin skin2 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
         /*LABEL ERROR*/
         Label lbError = new Label("Selecciona un modo de juego", skin2);
-        lbError.setPosition(viewportWidth/3 - 10, viewportHeight/5);
 
         /*TEXTFIELD - NO.CARNET*/
         TextField txtCard = new TextField("", skin);
         txtCard.setPosition(viewportWidth/3 +45,viewportHeight/2 + 120);
         configStage.addActor(txtCard);
+
         /*CHECKBOX 1 - ANGLES MODE*/
         CheckBox cbAnglesMode = new CheckBox(" Angulos", skin);
         cbAnglesMode.setPosition(viewportWidth/3 + 50, viewportHeight/2 + 20);
@@ -208,6 +210,12 @@ public class MainMenu implements Screen {
         configStage.addActor(btnNext);
 
         /*LISTENERS*/
+        txtCard.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                GameHandler.card_MainMenu = txtCard.getText().trim();
+            }
+        });
         cbAnglesMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -227,21 +235,29 @@ public class MainMenu implements Screen {
         btnNext.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if(GameHandler.gameMode_MainMenu == "angles"){
+                if(GameHandler.gameMode_MainMenu == "angles" && GameHandler.card_MainMenu != null){
                     menuState = MenuState.anglesSate;
                 }
-                if(GameHandler.gameMode_MainMenu == "laps"){
+                if(GameHandler.gameMode_MainMenu == "laps" && GameHandler.card_MainMenu != null){
                     menuState = MenuState.lapsState;
                 }
-                if(cbAnglesMode.isChecked() == false && cbLapsMode.isChecked() == false){
+                /*ERRORS DETECTION*/
+                if((cbAnglesMode.isChecked() == false && cbLapsMode.isChecked() == false) || GameHandler.card_MainMenu == null ){
                     menuState = MenuState.configurationState;
-                    lbError.setText("Selecciona un modo de juego");
+                    if(GameHandler.card_MainMenu == null){
+                        lbError.setText("Por favor ingrese un numero de carnet");
+                        lbError.setPosition(viewportWidth/5, viewportHeight/5);
+                    }else {
+                        lbError.setText("Selecciona un modo de juego");
+                        lbError.setPosition(viewportWidth/3 - 10, viewportHeight/5);
+                    }
                     configStage.addActor(lbError);
                 }
             }
         });
     }
     private void AnglesMenu_construct(){
+
         /*TEXTFIELD - BEGINNING ANGLE*/
         TextField txtBeginningAngle = new TextField("", skin);
         txtBeginningAngle.setPosition((viewportWidth/5)*2,((viewportHeight/4)*3)-5);
@@ -275,12 +291,22 @@ public class MainMenu implements Screen {
         btnReturn.setSize(100,100);
         anglesStage.addActor(btnReturn);
 
+        /*LABEL - ERRORS*/
+        Label lbError = new Label("", skin);
+
+        /* ERRORS DETECTION*/
+        String strInitAngle = txtBeginningAngle.getText().trim();
+        String strEndAngle = txtEndAngle.getText().trim();
+        boolean isNumericInitAngle = isNumeric(strInitAngle);
+        boolean isNumericEndAngle = isNumeric(strEndAngle);
+        boolean isEmpty = GameHandler.beginningAngle_MainMenu == null || GameHandler.endAngle_MainMenu == null;
+        boolean invalidInitAngle = GameHandler.beginningAngle_MainMenu < 0 || GameHandler.beginningAngle_MainMenu >= 360;
+        boolean invalidEndAngle = GameHandler.endAngle_MainMenu > 360 || GameHandler.endAngle_MainMenu <= 0;
+        boolean canContinue = isEmpty == false && invalidEndAngle == false && invalidInitAngle == false && isNumericEndAngle && isNumericInitAngle;
         /*LISTENERS*/
         btnAccept.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText());
-                GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText());
                 if(lstSpeed.getSelectedIndex() == 0){
                     GameHandler.speed_MainMenu = 30;
                 }
@@ -290,8 +316,25 @@ public class MainMenu implements Screen {
                 if(lstSpeed.getSelectedIndex() == 2){
                     GameHandler.speed_MainMenu = 60;
                 }
-                GameHandler.screen_MainMenu = "gameScreen";
-                PrintTag.Print(TAG, String.valueOf(GameHandler.speed_MainMenu));
+                /*ERRORS DETECTION*/
+                if(canContinue){
+                    GameHandler.screen_MainMenu = "gameScreen";
+                    GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
+                    GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
+                }else {
+                    if(isEmpty){
+                        lbError.setText("Completa todos los espacios por favor");
+                    }
+                    if(invalidInitAngle || invalidEndAngle){
+                        lbError.setText("Ingresar un número entre 0 y 360 en los espacios disponibles");
+                    }
+                    if(isNumericInitAngle == false || isNumericEndAngle == false){
+                        lbError.setText("Ingresa solo numeros por favor");
+                        lbError.setPosition(viewportWidth/3, viewportHeight/2 - 25);
+                    }
+                    anglesStage.addActor(lbError);
+                    menuState = MenuState.anglesSate;
+                }
             }
         });
         btnReturn.addListener(new ChangeListener() {
@@ -335,19 +378,28 @@ public class MainMenu implements Screen {
         btnReturn.setSize(100,100);
         lapsStage.addActor(btnReturn);
 
+        /*LABEL - ERRORS DETECTION*/
+        Label lbError = new Label("Selecciona un sentido de giro por favor", skin);
+        lbError.setPosition(viewportWidth/3 - 20, viewportHeight/4);
+
         /*LISTENERS*/
         btnAccept.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                GameHandler.screen_MainMenu = "gameScreen";
-                if(lstSpeed.getSelectedIndex() == 0){
-                    GameHandler.speed_MainMenu = 30;
-                }
-                if(lstSpeed.getSelectedIndex() == 1){
-                    GameHandler.speed_MainMenu = 45;
-                }
-                if(lstSpeed.getSelectedIndex() == 2){
-                    GameHandler.speed_MainMenu = 60;
+                if(cbLeft.isChecked() == false && cbRight.isChecked() == false){
+                    lapsStage.addActor(lbError);
+                    menuState = MenuState.lapsState;
+                }else {
+                    GameHandler.screen_MainMenu = "gameScreen";
+                    if(lstSpeed.getSelectedIndex() == 0){
+                        GameHandler.speed_MainMenu = 30;
+                    }
+                    if(lstSpeed.getSelectedIndex() == 1){
+                        GameHandler.speed_MainMenu = 45;
+                    }
+                    if(lstSpeed.getSelectedIndex() == 2){
+                        GameHandler.speed_MainMenu = 60;
+                    }
                 }
             }
         });
@@ -372,5 +424,16 @@ public class MainMenu implements Screen {
                 GameHandler.rotationMode_MainMenu = "derecha";
             }
         });
+    }
+
+    private boolean isNumeric(String text){
+        boolean isNumeric;
+        try{
+            Integer.parseInt(text);
+            isNumeric = true;
+        } catch (NumberFormatException exception){
+            isNumeric = false;
+        }
+        return isNumeric;
     }
 }

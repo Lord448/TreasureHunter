@@ -28,12 +28,13 @@ public class GameHandler {
     public static final int MOBILE_ENV = 1;
 
     /*MENU*/
-    public static String gameMode_MainMenu;
-    public static Integer beginningAngle_MainMenu = 0;
-    public static Integer endAngle_MainMenu = 0;
-    public static Integer speed_MainMenu = 0;
-    public static String screen_MainMenu = "menu";
-    public static String rotationMode_MainMenu;
+    public static String gameMode_MainMenu;                 //Angles mode or laps mode
+    public static Integer beginningAngle_MainMenu = 0;      //Chosen angle to initialize on Angles game mode
+    public static Integer endAngle_MainMenu = 0;            //Chosen angle to finish on Angles game mode
+    public static Integer speed_MainMenu = 0;               //Speed of the computer circle to chase on both game modes
+    public static String screen_MainMenu = "menu";          //Run the game on the MainMenu class or GameScreen class
+    public static String rotationMode_MainMenu;             //The direction of the computer's circle rotation
+    public static String card_MainMenu;                     //Saves the user's number card
 
     public static void init(int env){
         GameHandler.environment = env;

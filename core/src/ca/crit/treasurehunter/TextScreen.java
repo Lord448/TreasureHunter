@@ -42,7 +42,7 @@ public class TextScreen {
     }
 
     public void render(final SpriteBatch batch){
-        batch.draw(treasureTexture, 5, WORLD_WIDTH/2 - 5, WORLD_HEIGHT/8, WORLD_HEIGHT/9);
+        batch.draw(treasureTexture, 5, WORLD_WIDTH/2 - 5, WORLD_HEIGHT/10, WORLD_HEIGHT/11);
         treasureCounter.draw(batch, "x" + GameHandler.counter, 15, WORLD_WIDTH/2 + 2);
         lapsCounter.draw(batch, "Vueltas: "+ GameHandler.RoundTrips, WORLD_WIDTH/3 + 7, WORLD_HEIGHT - 6);
 

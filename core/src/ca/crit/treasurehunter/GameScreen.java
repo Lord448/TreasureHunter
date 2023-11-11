@@ -11,6 +11,7 @@ import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
 import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
 import static ca.crit.treasurehunter.GameHandler.playedTime_min;
 import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
+import static ca.crit.treasurehunter.GameHandler.screen_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
 
 import com.badlogic.gdx.Gdx;
@@ -52,7 +53,7 @@ public class GameScreen implements Screen {
     /*OTHERS*/
     public static boolean flag;
 
-    private TextButton btnEndGame;
+    private TextButton btnEndGame, btnReturn;
     private Skin skin;
     private Stage stage;
 
@@ -75,7 +76,7 @@ public class GameScreen implements Screen {
 
         /*STAGE*/
         stage = new Stage(new StretchViewport(720,480, new OrthographicCamera()));
-        skin = new Skin(Gdx.files.internal("Menu/UISkin/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("Menu/ShadeUISkin/uiskin.json"));
     }
     @Override
     public void show() {
@@ -148,14 +149,26 @@ public class GameScreen implements Screen {
 
     private void stage_constructor(){
         btnEndGame = new TextButton("Finalizar Sesion", skin);
-        btnEndGame.setPosition(550, 460);
+        btnEndGame.setPosition(600, 440);
         stage.addActor(btnEndGame);
+
+        btnReturn = new TextButton("Regresar", skin);
+        btnReturn.setPosition(10, 440);
+        stage.addActor(btnReturn);
+        /*LISTENERS*/
         btnEndGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                //todo
+
             }
         });
+        btnReturn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                screen_MainMenu = "menu";
+            }
+        });
+
     }
     private void renderGraphics(float delta){
         Gdx.input.setInputProcessor(stage);

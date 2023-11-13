@@ -89,4 +89,14 @@ public class Background {
         }
         oceanAnimation = new Animation<>(1/9f, oceanTextures);
     }
+
+    public void dispose(){
+        oceanPack.dispose();
+        for (int i = 0; i<= dynamicBackgrounds.length ; i++){
+            dynamicBackgrounds[i].dispose();
+        }
+        for(int i = 0; i< staticBackgrounds.length; i++){
+            staticBackgrounds[i].dispose();
+        }
+    }
 }

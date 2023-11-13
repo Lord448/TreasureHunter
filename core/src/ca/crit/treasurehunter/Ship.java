@@ -36,6 +36,9 @@ public class Ship {
             rectangle.set(x, y + 100, WIDTH, HEIGHT);    // Any collision won't occurred no matter the ship position
         }
     }
+    public void dispose(){
+        shipTexture.dispose();
+    }
 
     /*
     ShapeRenderer shapeRenderer;

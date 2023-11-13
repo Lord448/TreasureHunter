@@ -55,10 +55,6 @@ public class GameText {
         font.draw(batch, text, x, y);
     }
 
-    public void dispose() {
-        font.dispose();
-    }
-
     //Getters and setters
     public void setText(String text) {
         this.text = text;
@@ -104,4 +100,9 @@ public class GameText {
     public float getScaleY() {
         return scaleY;
     }
+
+    public void dispose() {
+        font.dispose();
+    }
+
 }

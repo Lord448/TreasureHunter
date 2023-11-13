@@ -243,4 +243,9 @@ public class CircleBar {
             return  computer_isForward || user_isForward;   //exceeds the allowed distance between circles
         }
     }
+    public void dispose(){
+        userTexture.dispose();
+        computerTexture.dispose();
+        circleTexture.dispose();
+    }
 }

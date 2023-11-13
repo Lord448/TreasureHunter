@@ -165,7 +165,21 @@ public class MainMenu implements Screen {
 
     @Override
     public void dispose() {
-
+        batch.dispose();
+        background.dispose();
+        initStage.dispose();
+        configStage.dispose();
+        anglesStage.dispose();
+        lapsStage.dispose();
+        skin.dispose();
+        skinGlassy.dispose();
+        tittleText.dispose();
+        cardText.dispose();
+        gameModeText.dispose();
+        beginningAngleText.dispose();
+        endAngleText.dispose();
+        speedText.dispose();
+        rotationText.dispose();
     }
 
     private void InitialMenu_construct(){
@@ -437,7 +451,7 @@ public class MainMenu implements Screen {
             if((initAngle < 0 || endAngle < 0) || (initAngle > 360 || endAngle > 360)){
                 return 2;
             }
-            if((Math.abs(initAngle - endAngle) <= 90)|| Math.abs(endAngle - initAngle) <= 90){
+            if((Math.abs(initAngle - endAngle) < 90)|| Math.abs(endAngle - initAngle) < 90){
                 return 3;
             }
         } catch (NumberFormatException exception){

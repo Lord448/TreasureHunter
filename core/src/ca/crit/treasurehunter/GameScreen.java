@@ -1,5 +1,6 @@
 package ca.crit.treasurehunter;
 
+import static ca.crit.treasurehunter.GameHandler.RoundTrips;
 import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
 import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
@@ -144,7 +145,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        batch.dispose();
+        treasures.dispose();
+        ship.dispose();
+        textScreen.dispose();
+        circleBarAngles.dispose();
+        circleBarLaps.dispose();
+        background.dispose();
     }
 
     private void stage_constructor(){
@@ -165,10 +172,18 @@ public class GameScreen implements Screen {
         btnReturn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                /*RETURN TO THE MENU*/
                 screen_MainMenu = "menu";
+                /*RESET GLOBAL VARIABLES*/
+                playedTime_min = 0;
+                playedTime_sec = 0;
+                RoundTrips = 0;
+                counter = 0;
+                /*RESET TREASURE CLASS VARIABLES*/
+                treasures.setX(WORLD_WIDTH+70);
+                treasures.setInitialX_Position(WORLD_WIDTH+70);
             }
         });
-
     }
     private void renderGraphics(float delta){
         Gdx.input.setInputProcessor(stage);

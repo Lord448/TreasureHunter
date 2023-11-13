@@ -32,6 +32,7 @@ public class Main_treasureHunter extends Game {
 	
 	@Override
 	public void dispose () {
+		menu.dispose();
 		gameScreen.dispose();
 	}
 

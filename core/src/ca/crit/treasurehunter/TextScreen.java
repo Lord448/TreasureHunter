@@ -71,4 +71,11 @@ public class TextScreen {
             }
         }
     }
+    public void dispose(){
+        treasureCounter.dispose();
+        elapsedTime.dispose();
+        lapsCounter.dispose();
+        collisionTexture.dispose();
+        treasureTexture.dispose();
+    }
 }

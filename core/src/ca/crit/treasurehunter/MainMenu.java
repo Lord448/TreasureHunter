@@ -232,7 +232,9 @@ public class MainMenu implements Screen {
         cbAnglesMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                cbLapsMode.setChecked(false);
+                if(cbAnglesMode.isChecked()){
+                    cbLapsMode.setChecked(false);
+                }
                 GameHandler.gameMode_MainMenu = "angles";
                 lbError.setText("");
             }
@@ -240,7 +242,9 @@ public class MainMenu implements Screen {
         cbLapsMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                cbAnglesMode.setChecked(false);
+                if(cbLapsMode.isChecked()){
+                    cbAnglesMode.setChecked(false);
+                }
                 GameHandler.gameMode_MainMenu = "laps";
                 lbError.setText("");
             }

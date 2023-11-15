@@ -92,7 +92,7 @@ public class Background {
 
     public void dispose(){
         oceanPack.dispose();
-        for (int i = 0; i<= dynamicBackgrounds.length ; i++){
+        for (int i = 0; i< dynamicBackgrounds.length ; i++){
             dynamicBackgrounds[i].dispose();
         }
         for(int i = 0; i< staticBackgrounds.length; i++){

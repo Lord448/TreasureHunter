@@ -1,5 +1,6 @@
 package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
+import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -35,6 +36,12 @@ public class CircleBar {
     String direction;
     boolean flagLaps = true;
 
+    /*FOR SAMPLING VARIABLES*/
+    int angleSample[] = new int[10];       //At what angle a sample is taken
+    float timeSample[];       //At what angle a sample is taken
+    float time;                           //Time played
+    int index = 0, numberOfSamples=0;
+
     /*CONSTRUCTOR AND RENDER OF ANGLES GAME MODE*/
     public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, float endAngle){
         this.speed_computer = speed_computer;
@@ -68,6 +75,9 @@ public class CircleBar {
         /* SET THE RADIUS SPIN CIRCLES*/
         user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
         computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
+
+        /*SAMPLING*/
+        timeSamples(this.beginningAngle, this.endAngle); //todo
     }
 
     public void render_AnglesGame(float deltaTime, final SpriteBatch batch){
@@ -110,6 +120,9 @@ public class CircleBar {
         if(stop){
             angle_computer = lastAngle;
         }
+
+        /*SAMPLING RENDER*/
+        render_Sampling(deltaTime); //todo
     }
 
     /*CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/
@@ -247,5 +260,50 @@ public class CircleBar {
         userTexture.dispose();
         computerTexture.dispose();
         circleTexture.dispose();
+    }
+
+    /*SAMPLING TIME PER ANGLES*/
+    public void timeSamples(float beginningAngle, float endAngle){
+        int samplePerAngle = (int)(Math.abs(endAngle - beginningAngle)/10);     //Angle separation between samples
+
+        if(beginningAngle < endAngle){
+            for (int i=angleSample.length-1; i >= 0; i--){
+                angleSample[i] = samplePerAngle * (i+1);
+            }
+
+        } else if (beginningAngle > endAngle) {
+            for (int i=0; i<angleSample.length; i++){
+                angleSample[i] = samplePerAngle * (i+1);
+            }
+        }
+
+    }
+    public void render_Sampling(float deltaTime){
+        time += deltaTime;
+
+        if(goForward)
+            if(angle_user > angleSample[index]){
+                timeSample[numberOfSamples] = time;
+                System.out.println(timeSample[numberOfSamples]);
+                time = 0;
+                numberOfSamples ++;
+                index ++;
+                if(index > 10){
+                    index = 10;
+                }
+            }
+
+        if(goBack){
+            if(angle_user < angleSample[index]){
+                timeSample[numberOfSamples] = time;
+                System.out.println(timeSample[numberOfSamples]);
+                time = 0;
+                numberOfSamples ++;
+                index --;
+                if(index < 0){
+                    index = 0;
+                }
+            }
+        }
     }
 }

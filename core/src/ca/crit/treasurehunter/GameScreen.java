@@ -12,7 +12,7 @@ import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
 import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
 import static ca.crit.treasurehunter.GameHandler.playedTime_min;
 import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
-import static ca.crit.treasurehunter.GameHandler.screen_MainMenu;
+import static ca.crit.treasurehunter.GameHandler.screen;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
 
 import com.badlogic.gdx.Gdx;
@@ -24,6 +24,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -51,27 +52,32 @@ public class GameScreen implements Screen {
     /*TEXT*/
     private final TextScreen textScreen;
 
-    /*OTHERS*/
-    public static boolean flag;
-
+    /*GRAPHIC USAGES*/
     private TextButton btnEndGame, btnReturn;
     private Skin skin;
     private Stage stage;
+
+    /*OTHERS*/
+    public static boolean flag;
 
     GameScreen(){
         /*SCREEN*/
         camera = new OrthographicCamera();
         viewport = new StretchViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+
         /*GRAPHICS*/
         batch = new SpriteBatch();
         background = new Background();
+
         /*CHARACTERS*/
         ship = new Ship(29, 7, 10, 5);
+
         /*OBJECTS*/
         treasures = new Treasures(WORLD_WIDTH+70, 7, 6);
 
         /*TEXT*/
         textScreen = new TextScreen();
+
         /*OTHERS*/
         flag = true;
 
@@ -108,15 +114,15 @@ public class GameScreen implements Screen {
         }
 
         batch.begin();
-        background.render(delta, batch);
-        treasures.render(delta, batch);
-        ship.render(batch);
-        textScreen.render(batch);
-        if(gameMode_MainMenu.equals("angles")){
-            circleBarAngles.render_AnglesGame(delta, batch);
-        } else if (gameMode_MainMenu.equals("laps")) {
-            circleBarLaps.render_LapsGame(delta, batch);
-        }
+            background.render(delta, batch);
+            treasures.render(delta, batch);
+            ship.render(batch);
+            textScreen.render(batch);
+            if(gameMode_MainMenu.equals("angles")){
+                circleBarAngles.render_AnglesGame(delta, batch);
+            } else if (gameMode_MainMenu.equals("laps")) {
+                circleBarLaps.render_LapsGame(delta, batch);
+            }
         batch.end();
 
         renderGraphics(delta);
@@ -166,14 +172,14 @@ public class GameScreen implements Screen {
         btnEndGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-
+                screen = "resume";
             }
         });
         btnReturn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 /*RETURN TO THE MENU*/
-                screen_MainMenu = "menu";
+                screen = "menu";
                 /*RESET GLOBAL VARIABLES*/
                 playedTime_min = 0;
                 playedTime_sec = 0;
@@ -191,8 +197,3 @@ public class GameScreen implements Screen {
         stage.act(delta);
     }
 }
-       /*SABER POSICIÓN DE CURSOR CON CLICK EN EL MAPA
-        if(Gdx.input.isTouched()){
-            System.out.println("x: " + Gdx.input.getX());
-            System.out.println("y: " + (-1)*(Gdx.input.getY() - 479));
-        }*/

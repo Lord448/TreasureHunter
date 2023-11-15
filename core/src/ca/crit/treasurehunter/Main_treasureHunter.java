@@ -10,30 +10,37 @@ import java.util.Objects;
 
 public class Main_treasureHunter extends Game {
 	GameScreen gameScreen;
-	MainMenu menu;
+	MainMenu menuScreen;
+	ResumeScreen resumeScreen;
 	@Override
 	public void create () {
 		gameScreen = new GameScreen();
-		menu = new MainMenu();
+		menuScreen = new MainMenu();
+		resumeScreen = new ResumeScreen();
 	}
 
 	@Override
 	public void render () {
 		super.render();
-		if(Objects.equals(GameHandler.screen_MainMenu, "gameScreen")){
+		if(Objects.equals(GameHandler.screen, "game")){
 			setScreen(gameScreen);
-			GameHandler.screen_MainMenu = "";
+			GameHandler.screen = "";
 		}
-		if(Objects.equals(GameHandler.screen_MainMenu, "menu")){
-			setScreen(menu);
-			GameHandler.screen_MainMenu = "";
+		if(Objects.equals(GameHandler.screen, "menu")){
+			setScreen(menuScreen);
+			GameHandler.screen = "";
+		}
+		if(Objects.equals(GameHandler.screen, "resume")){
+			setScreen(resumeScreen);
+			GameHandler.screen = "";
 		}
 	}
 	
 	@Override
 	public void dispose () {
-		menu.dispose();
+		menuScreen.dispose();
 		gameScreen.dispose();
+		resumeScreen.dispose();
 	}
 
 	@Override

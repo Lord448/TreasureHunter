@@ -1,5 +1,8 @@
 package ca.crit.treasurehunter;
 
+import static ca.crit.treasurehunter.GameHandler.viewportHeight;
+import static ca.crit.treasurehunter.GameHandler.viewportWidth;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
@@ -31,8 +34,6 @@ public class MainMenu implements Screen {
         lapsState
     }
     public MenuState menuState;
-    private static final float viewportWidth = 720;
-    private static final float viewportHeight = 480;
     private Camera camera;
     private Viewport viewport, uiViewport;
     private SpriteBatch batch;
@@ -322,7 +323,7 @@ public class MainMenu implements Screen {
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle);
                 /*THERE ARE NO ERRORS*/
                 if(isEmpty == false && Error == 0) {
-                    GameHandler.screen_MainMenu = "gameScreen";
+                    GameHandler.screen = "game";
                     GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
                     GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
                     if(lstSpeed.getSelectedIndex() == 0){
@@ -411,7 +412,7 @@ public class MainMenu implements Screen {
                     lapsStage.addActor(lbError);
                     menuState = MenuState.lapsState;
                 }else {
-                    GameHandler.screen_MainMenu = "gameScreen";
+                    GameHandler.screen = "game";
                     if(lstSpeed.getSelectedIndex() == 0){
                         GameHandler.speed_MainMenu = 30;
                     }
@@ -434,14 +435,18 @@ public class MainMenu implements Screen {
         cbLeft.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                cbRight.setChecked(false);
+                if(cbLeft.isChecked()){
+                    cbRight.setChecked(false);
+                }
                 GameHandler.rotationMode_MainMenu = "izquierda";
             }
         });
         cbRight.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                cbLeft.setChecked(false);
+                if(cbRight.isChecked()){
+                    cbLeft.setChecked(false);
+                }
                 GameHandler.rotationMode_MainMenu = "derecha";
             }
         });

@@ -77,7 +77,7 @@ public class CircleBar {
         computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
 
         /*SAMPLING*/
-        timeSamples(this.beginningAngle, this.endAngle); //todo
+        //timeSamples(this.beginningAngle, this.endAngle); //todo
     }
 
     public void render_AnglesGame(float deltaTime, final SpriteBatch batch){
@@ -122,7 +122,7 @@ public class CircleBar {
         }
 
         /*SAMPLING RENDER*/
-        render_Sampling(deltaTime); //todo
+        //render_Sampling(deltaTime); //todo
     }
 
     /*CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/

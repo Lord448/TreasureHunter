@@ -34,15 +34,15 @@ public class MainMenu implements Screen {
         lapsState
     }
     public MenuState menuState;
-    private Camera camera;
-    private Viewport viewport, uiViewport;
-    private SpriteBatch batch;
-    private Background background;
-    private Stage initStage, configStage, anglesStage, lapsStage;
+    private final Camera camera;
+    private final Viewport viewport, uiViewport;
+    private final SpriteBatch batch;
+    private final Background background;
+    private final Stage initStage, configStage, anglesStage, lapsStage;
     private final Skin skin, skinGlassy;
     private final String skinPath = "Menu/UISkin/uiskin.json";
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
-    private GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
+    private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -233,6 +233,7 @@ public class MainMenu implements Screen {
         cbAnglesMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
                 if(cbAnglesMode.isChecked()){
                     cbLapsMode.setChecked(false);
                 }
@@ -243,6 +244,7 @@ public class MainMenu implements Screen {
         cbLapsMode.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
                 if(cbLapsMode.isChecked()){
                     cbAnglesMode.setChecked(false);
                 }
@@ -282,7 +284,7 @@ public class MainMenu implements Screen {
         anglesStage.addActor(txtBeginningAngle);
 
         /*TEXTFIELD - END ANGLE*/
-        TextField txtEndAngle = new TextField("0", skin);
+        TextField txtEndAngle = new TextField("90", skin);
         txtEndAngle.setPosition((viewportWidth/5)*2,(viewportHeight/4)*2);
         anglesStage.addActor(txtEndAngle);
 

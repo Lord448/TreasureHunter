@@ -1,6 +1,6 @@
 package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
-import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
+import static ca.crit.treasurehunter.GameHandler.angle_sensor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -214,11 +214,16 @@ public class CircleBar {
 
     /*COMMON METHODS*/
     private void user_movement(float deltaTime){
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-            angle_user += deltaTime * speed_user;     // How user circle go forward
+        if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                angle_user += deltaTime * speed_user;     // How user circle go forward
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                angle_user -= deltaTime * speed_user;     // How user circle go back
+            }
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)){
-            angle_user -= deltaTime * speed_user;     // How user circle go back
+        else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
+            angle_user = angle_sensor;
         }
     }
 

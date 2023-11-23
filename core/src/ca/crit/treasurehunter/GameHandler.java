@@ -1,35 +1,65 @@
 package ca.crit.treasurehunter;
 
 
-import com.badlogic.gdx.Screen;
-
 public class GameHandler {
+    /**
+     * --------------------------------------------------------------------------
+     *                                WORLD CONSTANTS
+     * --------------------------------------------------------------------------
+     */
     public static int WORLD_WIDTH = 128;
     public static int WORLD_HEIGHT = 72;
 
-    /*TEXT SCREEN*/
-    public static float playedTime_sec = 0;    // Elapsed game time
-    public static float playedTime_min = 0;    // Elapsed game time
+    /**
+     * --------------------------------------------------------------------------
+     *                                 TEXT SCREEN
+     * --------------------------------------------------------------------------
+     */
+    public static float playedTime_sec = 0;    // Elapsed game time in seconds
+    public static float playedTime_min = 0;    // Elapsed game time in minutes
     public static int RoundTrips = 0;          // Number of times the computer circle went forward-back
 
     /*SHIP*/
-    public static boolean reached = false;      // Bandera para que ocurra el parallax y la recolección de tesoros
+    public static boolean reached = false;      // Flag that makes parallax and treasure hunt occur
+    /**
+     * --------------------------------------------------------------------------
+     *                                CIRCLE BAR
+     * --------------------------------------------------------------------------
+     */
+    public static float angle_sensor;
 
-    /*COLLISION*/
-    public static boolean collided;             // Colisionan barco-cofre
-    public static boolean treasureAppeared;     // Apareció un cofre
+    /**
+     * --------------------------------------------------------------------------
+     *                                 COLLISION
+     * --------------------------------------------------------------------------
+     */
+    public static boolean collided;             // Collision between treasure-ship
+    public static boolean treasureAppeared;     // A new treasure appeared
 
-    /*TREASURE*/
+    /**
+     * --------------------------------------------------------------------------
+     *                                 TREASURE
+     * --------------------------------------------------------------------------
+     */
     public static float treasurePosition;
     public static int counter;
 
     public static boolean onomatopoeiaAppear;
 
-    /*OTHERS*/
+    /**
+     * --------------------------------------------------------------------------
+     *                                  OTHERS
+     * --------------------------------------------------------------------------
+     */
     public static int environment;
     public static final int MOBILE_ENV = 1;
+    public static final int DESKTOP_ENV = 2;
 
-    /*MAIN MENU*/
+    /**
+     * --------------------------------------------------------------------------
+     *                                MAIN MENU
+     * --------------------------------------------------------------------------
+     */
     public static String gameMode_MainMenu;                 //Angles mode or laps mode
     public static Integer beginningAngle_MainMenu = 0;      //Chosen angle to initialize on Angles game mode
     public static Integer endAngle_MainMenu = 0;            //Chosen angle to finish on Angles game mode
@@ -38,13 +68,26 @@ public class GameHandler {
     public static String rotationMode_MainMenu;             //The direction of the computer's circle rotation
     public static String card_MainMenu;                     //Saves the user's number card
 
-    /*SCREEN*/
+    /**
+     * --------------------------------------------------------------------------
+     *                                SCREEN
+     * --------------------------------------------------------------------------
+     */
     public static final float viewportWidth = 720;
     public static final float viewportHeight = 480;
 
-    /*RESUME MENU*/
+    /**
+     * --------------------------------------------------------------------------
+     *                                RESUME MENU
+     * --------------------------------------------------------------------------
+     */
 
 
+    /**
+     * --------------------------------------------------------------------------
+     *                                METHODS
+     * --------------------------------------------------------------------------
+     */
     public static void init(int env){
         GameHandler.environment = env;
     }

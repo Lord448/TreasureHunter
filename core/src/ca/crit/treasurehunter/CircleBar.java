@@ -1,6 +1,7 @@
 package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
 import static ca.crit.treasurehunter.GameHandler.angle_sensor;
+import static sun.jvm.hotspot.debugger.win32.coff.DebugVC50X86RegisterEnums.TAG;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -9,9 +10,11 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import ca.crit.treasurehunter.Resources.PrintTag;
+
 public class CircleBar {
 
-    /*COMMON ATTRIBUTES*/
+    /**COMMON ATTRIBUTES*/
     float WIDTH = 20, HEIGHT = 20;
     float x = 3,y = 4;
     Texture userTexture = new Texture("Objects/circle_user.png");
@@ -27,7 +30,7 @@ public class CircleBar {
     float beginningAngle;                   // Angle where circles begin the movement
     int farAway_maxDistance;              // Maximum distance allow between both circles before computer circle stops to wait the user circle
 
-    /*GAME MODE: ANGLES ATTRIBUTES*/
+    /**GAME MODE: ANGLES ATTRIBUTES*/
     float lastAngle;                        // Last angle saves the last position of circle_computer when it exceeds the "maxDistance"
     float endAngle;                         // Limit angle where computer circle goes back to the begging angle to complete a loop
     boolean goForward = false, goBack = false, stop = false;     // Flags to make go forward or go back the computer circle in a certain range
@@ -36,13 +39,13 @@ public class CircleBar {
     String direction;
     boolean flagLaps = true;
 
-    /*FOR SAMPLING VARIABLES*/
+    /**FOR SAMPLING VARIABLES*/
     int angleSample[] = new int[10];       //At what angle a sample is taken
     float timeSample[];       //At what angle a sample is taken
     float time;                           //Time played
     int index = 0, numberOfSamples=0;
 
-    /*CONSTRUCTOR AND RENDER OF ANGLES GAME MODE*/
+    /**CONSTRUCTOR AND RENDER OF ANGLES GAME MODE*/
     public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, float endAngle){
         this.speed_computer = speed_computer;
         this.speed_user = speed_user;
@@ -125,7 +128,7 @@ public class CircleBar {
         //render_Sampling(deltaTime); //todo
     }
 
-    /*CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/
+    /**CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/
     public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, String direction){
         this.speed_computer = speed_computer;
         this.speed_user = speed_user;
@@ -211,8 +214,30 @@ public class CircleBar {
         }
 
     }
+    /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON THE ANGLES GAME MODE MENU*/
+    public CircleBar(float width, float height, float x, float y){
+        /* MODIFY THE SIZE AND POSITION OF THE SPRITES*/
+        user_sprite.setSize(width, height);
+        user_sprite.setX(x);
+        user_sprite.setY(y);
 
-    /*COMMON METHODS*/
+        /* SET THE RADIUS SPIN CIRCLES*/
+        user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
+    }
+    public void render_CirclesDraws(final SpriteBatch batch, float beginningAngle, float endAngle){
+        /*BEGINNING ANGLE*/
+        batch.draw(circleTexture, 95, 47, WIDTH, HEIGHT);
+        user_sprite.setX(95); user_sprite.setY(40);
+        user_sprite.setRotation(beginningAngle);
+        user_sprite.draw(batch);
+        /*END ANGLE*/
+        batch.draw(circleTexture, 95, 28, WIDTH, HEIGHT);
+        user_sprite.setX(95); user_sprite.setY(30);
+        user_sprite.setRotation(endAngle);
+        user_sprite.draw(batch);
+    }
+
+    /**COMMON METHODS*/
     private void user_movement(float deltaTime){
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
@@ -267,7 +292,7 @@ public class CircleBar {
         circleTexture.dispose();
     }
 
-    /*SAMPLING TIME PER ANGLES*/
+    /**SAMPLING TIME PER ANGLES*/
     public void timeSamples(float beginningAngle, float endAngle){
         int samplePerAngle = (int)(Math.abs(endAngle - beginningAngle)/10);     //Angle separation between samples
 

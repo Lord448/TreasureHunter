@@ -1,5 +1,7 @@
 package ca.crit.treasurehunter;
 
+import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
+import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.viewportHeight;
 import static ca.crit.treasurehunter.GameHandler.viewportWidth;
 
@@ -7,8 +9,11 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
@@ -43,6 +48,7 @@ public class MainMenu implements Screen {
     private final String skinPath = "Menu/UISkin/uiskin.json";
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
     private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
+    private final CircleBar circleBar;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -82,6 +88,8 @@ public class MainMenu implements Screen {
 
         /*THE FIRST STAGE TO SEE*/
         menuState = MenuState.initialState;
+
+        circleBar = new CircleBar(WORLD_WIDTH/4, WORLD_HEIGHT/4,(viewportWidth/5)*3,((viewportHeight/4)*3)-5);
     }
     @Override
     public void show() {
@@ -108,6 +116,7 @@ public class MainMenu implements Screen {
                 endAngleText.draw(batch);
                 speedText.setXY(40,15);
                 speedText.draw(batch);
+                circleBar.render_CirclesDraws(batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
                 break;
             case lapsState:
                 speedText.setXY(48,50);
@@ -282,11 +291,13 @@ public class MainMenu implements Screen {
         TextField txtBeginningAngle = new TextField("0", skin);
         txtBeginningAngle.setPosition((viewportWidth/5)*2,((viewportHeight/4)*3)-5);
         anglesStage.addActor(txtBeginningAngle);
+        GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
 
         /*TEXTFIELD - END ANGLE*/
         TextField txtEndAngle = new TextField("90", skin);
         txtEndAngle.setPosition((viewportWidth/5)*2,(viewportHeight/4)*2);
         anglesStage.addActor(txtEndAngle);
+        GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
 
        /*LIST - SPEED MODES*/
         List lstSpeed = new List<>(skin);
@@ -315,6 +326,26 @@ public class MainMenu implements Screen {
         Label lbError = new Label("", skin);
 
         /*LISTENERS*/
+        txtEndAngle.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(txtEndAngle.getText().trim() == null){
+                    GameHandler.endAngle_MainMenu = 0;
+                }else {
+                    GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
+                }
+            }
+        });
+        txtBeginningAngle.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(txtBeginningAngle.getText().trim() == null){
+                    GameHandler.beginningAngle_MainMenu = 0;
+                }else {
+                    GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
+                }
+            }
+        });
         btnAccept.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
@@ -326,8 +357,8 @@ public class MainMenu implements Screen {
                 /*THERE ARE NO ERRORS*/
                 if(isEmpty == false && Error == 0) {
                     GameHandler.screen = "game";
-                    GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
-                    GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
+                   // GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
+                   // GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
                     if(lstSpeed.getSelectedIndex() == 0){
                         GameHandler.speed_MainMenu = 30;
                     }

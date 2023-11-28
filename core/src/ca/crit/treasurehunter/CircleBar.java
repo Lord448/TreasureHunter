@@ -214,27 +214,28 @@ public class CircleBar {
         }
 
     }
+
     /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON THE ANGLES GAME MODE MENU*/
-    public CircleBar(float width, float height, float x, float y){
+    public CircleBar(float x, float y){
         /* MODIFY THE SIZE AND POSITION OF THE SPRITES*/
-        user_sprite.setSize(width, height);
+        user_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
         user_sprite.setX(x);
         user_sprite.setY(y);
+        computer_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+        computer_sprite.setX(x);
+        computer_sprite.setY(y);
 
         /* SET THE RADIUS SPIN CIRCLES*/
         user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
+        computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
     }
-    public void render_CirclesDraws(final SpriteBatch batch, float beginningAngle, float endAngle){
-        /*BEGINNING ANGLE*/
-        batch.draw(circleTexture, 95, 47, WIDTH, HEIGHT);
-        user_sprite.setX(95); user_sprite.setY(40);
-        user_sprite.setRotation(beginningAngle);
+    public void batch_sprite_rotation(float x, float y, final SpriteBatch batch, float initAngle, float endAngle){
+        batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+        user_sprite.setRotation(initAngle);
         user_sprite.draw(batch);
-        /*END ANGLE*/
-        batch.draw(circleTexture, 95, 28, WIDTH, HEIGHT);
-        user_sprite.setX(95); user_sprite.setY(30);
-        user_sprite.setRotation(endAngle);
-        user_sprite.draw(batch);
+
+        computer_sprite.setRotation(endAngle);
+        computer_sprite.draw(batch);
     }
 
     /**COMMON METHODS*/

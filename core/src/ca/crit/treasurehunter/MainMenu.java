@@ -1,5 +1,4 @@
 package ca.crit.treasurehunter;
-
 import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
 import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.viewportHeight;
@@ -31,7 +30,10 @@ import ca.crit.treasurehunter.Resources.ImageButton;
 import ca.crit.treasurehunter.Resources.PrintTag;
 
 public class MainMenu implements Screen {
+
+    //TODO : Fix that list doesnt erease itself when return button from gamescreen is selected
     private final String TAG = "MainMenu";
+    public static float x = 95, y = 35;     //Coordenates for example of circle angles in Angles Game Mode
     private enum MenuState{
         initialState,
         configurationState,
@@ -49,6 +51,7 @@ public class MainMenu implements Screen {
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
     private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
     private final CircleBar circleBar;
+    private final Texture circleArrowTexture, circleGreen, circleYellow;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -89,7 +92,12 @@ public class MainMenu implements Screen {
         /*THE FIRST STAGE TO SEE*/
         menuState = MenuState.initialState;
 
-        circleBar = new CircleBar(WORLD_WIDTH/4, WORLD_HEIGHT/4,(viewportWidth/5)*3,((viewportHeight/4)*3)-5);
+        /*ANGLES STAGE MENU*/
+        circleBar = new CircleBar(x, y);
+        circleArrowTexture = new Texture("Objects/circle_arrow.png");
+        circleGreen = new Texture("Objects/circle_user.png");
+        circleYellow = new Texture("Objects/circle_computer.png");
+
     }
     @Override
     public void show() {
@@ -112,11 +120,14 @@ public class MainMenu implements Screen {
                 gameModeText.draw(batch);
                 break;
             case anglesSate:
+                batch.draw(circleGreen, 35, 45, 30, 30);
                 beginningAngleText.draw(batch);
+                batch.draw(circleYellow, 35, 30, 30, 30);
                 endAngleText.draw(batch);
                 speedText.setXY(40,15);
                 speedText.draw(batch);
-                circleBar.render_CirclesDraws(batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
+                circleBar.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
+                batch.draw(circleArrowTexture, x+8, y+7, 16, 16);
                 break;
             case lapsState:
                 speedText.setXY(48,50);
@@ -329,17 +340,18 @@ public class MainMenu implements Screen {
         txtEndAngle.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(txtEndAngle.getText().trim() == null){
+                if(txtEndAngle.getText().trim() == ""){
                     GameHandler.endAngle_MainMenu = 0;
                 }else {
                     GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
+                    System.out.println(GameHandler.endAngle_MainMenu);
                 }
             }
         });
         txtBeginningAngle.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(txtBeginningAngle.getText().trim() == null){
+                if(txtBeginningAngle.getText().trim() == ""){
                     GameHandler.beginningAngle_MainMenu = 0;
                 }else {
                     GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
@@ -360,13 +372,13 @@ public class MainMenu implements Screen {
                    // GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
                    // GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
                     if(lstSpeed.getSelectedIndex() == 0){
-                        GameHandler.speed_MainMenu = 30;
+                        GameHandler.speed_MainMenu = 10;
                     }
                     if(lstSpeed.getSelectedIndex() == 1){
-                        GameHandler.speed_MainMenu = 45;
+                        GameHandler.speed_MainMenu = 20;
                     }
                     if(lstSpeed.getSelectedIndex() == 2){
-                        GameHandler.speed_MainMenu = 60;
+                        GameHandler.speed_MainMenu = 30;
                     }
                 }
                 /*POSSIBLE ERRORS COMMITTED*/
@@ -447,13 +459,13 @@ public class MainMenu implements Screen {
                 }else {
                     GameHandler.screen = "game";
                     if(lstSpeed.getSelectedIndex() == 0){
-                        GameHandler.speed_MainMenu = 30;
+                        GameHandler.speed_MainMenu = 10;
                     }
                     if(lstSpeed.getSelectedIndex() == 1){
-                        GameHandler.speed_MainMenu = 45;
+                        GameHandler.speed_MainMenu = 20;
                     }
                     if(lstSpeed.getSelectedIndex() == 2){
-                        GameHandler.speed_MainMenu = 60;
+                        GameHandler.speed_MainMenu = 30;
                     }
                 }
             }

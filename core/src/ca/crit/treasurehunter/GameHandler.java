@@ -68,6 +68,7 @@ public class GameHandler {
     public static String rotationMode_MainMenu;             //The direction of the computer's circle rotation
     public static String card_MainMenu;                     //Saves the user's number card
 
+    //TODO: FIZ THAT GAME DOESNT WORK WITH THE ARROWS FROM THE LAPTOP
     /**
      * --------------------------------------------------------------------------
      *                                SCREEN

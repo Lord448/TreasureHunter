@@ -45,6 +45,7 @@ public class AndroidLauncher extends AndroidApplication {
 			rojoRX.setOnCharacteristicNotificationListener(this::onCharacteristicNotificationListener);
 		}
 		GameHandler.init(GameHandler.MOBILE_ENV);
+		//GameHandler.init(GameHandler.DESKTOP_ENV);
 	}
 
 	public void onCharacteristicNotificationListener(byte[] value) {

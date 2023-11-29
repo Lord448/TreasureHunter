@@ -30,8 +30,7 @@ import ca.crit.treasurehunter.Resources.ImageButton;
 import ca.crit.treasurehunter.Resources.PrintTag;
 
 public class MainMenu implements Screen {
-
-    //TODO : Fix that list doesnt erease itself when return button from gamescreen is selected
+    
     private final String TAG = "MainMenu";
     public static float x = 95, y = 35;     //Coordenates for example of circle angles in Angles Game Mode
     public static float maxSpeed = 100;

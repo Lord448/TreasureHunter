@@ -212,33 +212,9 @@ public class CircleBar {
         if (angle_user < 0) {
             angle_user = 360;
         }
-
     }
 
-    /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON THE ANGLES GAME MODE MENU*/
-    public CircleBar(float x, float y){
-        /* MODIFY THE SIZE AND POSITION OF THE SPRITES*/
-        user_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
-        user_sprite.setX(x);
-        user_sprite.setY(y);
-        computer_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
-        computer_sprite.setX(x);
-        computer_sprite.setY(y);
-
-        /* SET THE RADIUS SPIN CIRCLES*/
-        user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
-        computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
-    }
-    public void batch_sprite_rotation(float x, float y, final SpriteBatch batch, float initAngle, float endAngle){
-        batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));
-        user_sprite.setRotation(initAngle);
-        user_sprite.draw(batch);
-
-        computer_sprite.setRotation(endAngle);
-        computer_sprite.draw(batch);
-    }
-
-    /**COMMON METHODS*/
+    /**COMMON METHODS FOR ANGLES GAME MODE AND LAPS GAME MODE*/
     private void user_movement(float deltaTime){
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
@@ -251,7 +227,7 @@ public class CircleBar {
         else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
             angle_user = angle_sensor;
         }
-    }
+    }   //TODO: NO SE MUEVE CON FLECHAS DEL TECLADO
 
     private void batch_sprite_rotations(SpriteBatch batch){
         batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
@@ -335,6 +311,46 @@ public class CircleBar {
                     index = 0;
                 }
             }
+        }
+    }
+
+    /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON THE ANGLES GAME MODE MENU*/
+    public CircleBar(float x, float y, int numberOfCircles){
+        if(numberOfCircles == 1){
+            computer_sprite.setSize(WIDTH, HEIGHT);
+            computer_sprite.setX(x);
+            computer_sprite.setY(y);
+            /* SET THE RADIUS SPIN CIRCLE*/
+            computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
+        }else {
+            user_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+            user_sprite.setX(x);
+            user_sprite.setY(y);
+            computer_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+            computer_sprite.setX(x);
+            computer_sprite.setY(y);
+            /* SET THE RADIUS SPIN CIRCLES*/
+            user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
+            computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
+        }
+    }
+    public void batch_sprite_rotation(float x, float y, final SpriteBatch batch, float initAngle, float endAngle){
+        batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+        user_sprite.setRotation(initAngle);
+        user_sprite.draw(batch);
+
+        computer_sprite.setRotation(endAngle);
+        computer_sprite.draw(batch);
+    }
+
+    /**RENDER FOR EXEMPLIFY SPEED ON BOTH GAME MODE MENUS*/
+    public void render_speedRotation(final SpriteBatch batch, float deltaTime, float x, float y, float speed){
+        batch.draw(circleTexture, x, y, WIDTH/1, HEIGHT/1);
+        computer_sprite.setRotation(angle_computer);
+        computer_sprite.draw(batch);
+        angle_computer += deltaTime * speed;
+        if(angle_computer > 360){
+            angle_computer = 0;
         }
     }
 }

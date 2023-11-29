@@ -50,7 +50,7 @@ public class MainMenu implements Screen {
     private final String skinPath = "Menu/UISkin/uiskin.json";
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
     private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
-    private final CircleBar circleBar;
+    private final CircleBar circleBarAngles,circleBarSpeed;
     private final Texture circleArrowTexture, circleGreen, circleYellow;
     public MainMenu() {
         camera = new OrthographicCamera();
@@ -93,7 +93,8 @@ public class MainMenu implements Screen {
         menuState = MenuState.initialState;
 
         /*ANGLES STAGE MENU*/
-        circleBar = new CircleBar(x, y);
+        circleBarAngles = new CircleBar(x, y, 2);
+        circleBarSpeed = new CircleBar(70, 0, 1);
         circleArrowTexture = new Texture("Objects/circle_arrow.png");
         circleGreen = new Texture("Objects/circle_user.png");
         circleYellow = new Texture("Objects/circle_computer.png");
@@ -124,9 +125,10 @@ public class MainMenu implements Screen {
                 beginningAngleText.draw(batch);
                 batch.draw(circleYellow, 35, 30, 30, 30);
                 endAngleText.draw(batch);
-                speedText.setXY(40,15);
+                speedText.setXY(40,18);
                 speedText.draw(batch);
-                circleBar.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
+                circleBarAngles.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
+                circleBarSpeed.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu);
                 batch.draw(circleArrowTexture, x+8, y+7, 16, 16);
                 break;
             case lapsState:
@@ -297,7 +299,6 @@ public class MainMenu implements Screen {
         });
     }
     private void AnglesMenu_construct(){
-
         /*TEXTFIELD - BEGINNING ANGLE*/
         TextField txtBeginningAngle = new TextField("0", skin);
         txtBeginningAngle.setPosition((viewportWidth/5)*2,((viewportHeight/4)*3)-5);
@@ -310,14 +311,12 @@ public class MainMenu implements Screen {
         anglesStage.addActor(txtEndAngle);
         GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
 
-       /*LIST - SPEED MODES*/
-        List lstSpeed = new List<>(skin);
-        lstSpeed.setItems("Facil", "Normal", "Dificil");
-        Table table = new Table();
-        table.setFillParent(true);
-        table.setPosition(80,-180);
-        table.add(lstSpeed);
-        anglesStage.addActor(table);
+        /*TEXTFIELD - SPEED*/
+        TextField txtSpeed = new TextField("25", skin);
+        txtSpeed.setPosition(viewportWidth/3 +20, viewportHeight/10);
+        txtSpeed.setSize(85, 30);
+        anglesStage.addActor(txtSpeed);
+        GameHandler.speed_MainMenu = Integer.valueOf(txtSpeed.getText().trim());
 
         /*IMAGEBUTTON - ACCEPT*/
         ImageButton btnAccept = new ImageButton(skinGlassyPath,
@@ -340,21 +339,43 @@ public class MainMenu implements Screen {
         txtEndAngle.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(txtEndAngle.getText().trim() == ""){
+                String strInitAngle = txtBeginningAngle.getText().trim();
+                String strEndAngle = txtEndAngle.getText().trim();
+                String strSpeed = txtSpeed.getText().trim();
+                int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
+                if(strEndAngle.equals("") || Error == 1){    // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.endAngle_MainMenu = 0;
                 }else {
                     GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
-                    System.out.println(GameHandler.endAngle_MainMenu);
                 }
             }
         });
         txtBeginningAngle.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(txtBeginningAngle.getText().trim() == ""){
+                String strInitAngle = txtBeginningAngle.getText().trim();
+                String strEndAngle = txtEndAngle.getText().trim();
+                String strSpeed = txtSpeed.getText().trim();
+                int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
+                if(strInitAngle.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.beginningAngle_MainMenu = 0;
                 }else {
                     GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
+                }
+            }
+        });
+        txtSpeed.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String strInitAngle = txtBeginningAngle.getText().trim();
+                String strEndAngle = txtEndAngle.getText().trim();
+                String strSpeed = txtSpeed.getText().trim();
+                int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
+                if(strSpeed.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
+                    GameHandler.speed_MainMenu = 0;
+                }else {
+                    GameHandler.speed_MainMenu = Integer.valueOf(txtSpeed.getText().trim());
+                    System.out.println("speed: "+GameHandler.speed_MainMenu);
                 }
             }
         });
@@ -363,23 +384,13 @@ public class MainMenu implements Screen {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 String strInitAngle = txtBeginningAngle.getText().trim();
                 String strEndAngle = txtEndAngle.getText().trim();
+                String strSpeed = txtSpeed.getText().trim();
                 /*ERRORS DETECTION*/
-                boolean isEmpty = strInitAngle.equals("") || strEndAngle.equals("");
-                int Error = ErrorNumberDetection(strInitAngle, strEndAngle);
+                boolean isEmpty = strInitAngle.equals("") || strEndAngle.equals("") || strSpeed.equals("");
+                int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
                 /*THERE ARE NO ERRORS*/
                 if(isEmpty == false && Error == 0) {
                     GameHandler.screen = "game";
-                   // GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
-                   // GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
-                    if(lstSpeed.getSelectedIndex() == 0){
-                        GameHandler.speed_MainMenu = 10;
-                    }
-                    if(lstSpeed.getSelectedIndex() == 1){
-                        GameHandler.speed_MainMenu = 20;
-                    }
-                    if(lstSpeed.getSelectedIndex() == 2){
-                        GameHandler.speed_MainMenu = 30;
-                    }
                 }
                 /*POSSIBLE ERRORS COMMITTED*/
                 else {
@@ -392,12 +403,16 @@ public class MainMenu implements Screen {
                         lbError.setPosition(viewportWidth/3 - 25, viewportHeight/3 - 10);
                     }
                     else if (Error == 2) {
-                        lbError.setText("Ingresa numeros entre 0 y 360");
-                        lbError.setPosition(viewportWidth/3, viewportHeight/3 - 10);
+                        lbError.setText("Ingresa numeros entre 0 y 360 para los angulos");
+                        lbError.setPosition(viewportWidth/3-30, viewportHeight/3 - 10);
                     }
                     else if (Error == 3) {
                         lbError.setText("La distancia a recorrer es muy poca, aumenta el valor de los angulos");
                         lbError.setPosition(viewportWidth/6, viewportHeight/3 - 10);
+                    }
+                    else if (Error == 4) {
+                        lbError.setText("Disminuye el valor de la velocidad");
+                        lbError.setPosition(viewportWidth/3 -25, viewportHeight/3 - 10);
                     }
                     anglesStage.addActor(lbError);
                     menuState = MenuState.anglesSate;
@@ -497,16 +512,20 @@ public class MainMenu implements Screen {
         });
     }
 
-    private int ErrorNumberDetection(String text1, String text2){
-        int initAngle = 0, endAngle = 0;
+    private int ErrorNumberDetection(String txtInitAngle, String txtEndAngle, String txtspeed){
+        int initAngle = 0, endAngle = 0, speed = 0;
         try{
-            initAngle = Integer.parseInt(text1);
-            endAngle = Integer.parseInt(text2);
+            initAngle = Integer.parseInt(txtInitAngle);
+            endAngle = Integer.parseInt(txtEndAngle);
+            speed = Integer.parseInt(txtspeed);
             if((initAngle < 0 || endAngle < 0) || (initAngle > 360 || endAngle > 360)){
                 return 2;
             }
             if((Math.abs(initAngle - endAngle) < 90)|| Math.abs(endAngle - initAngle) < 90){
                 return 3;
+            }
+            if(speed > 100){
+                return 4;
             }
         } catch (NumberFormatException exception){
             return 1;

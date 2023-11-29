@@ -34,6 +34,7 @@ public class MainMenu implements Screen {
     //TODO : Fix that list doesnt erease itself when return button from gamescreen is selected
     private final String TAG = "MainMenu";
     public static float x = 95, y = 35;     //Coordenates for example of circle angles in Angles Game Mode
+    public static float maxSpeed = 100;
     private enum MenuState{
         initialState,
         configurationState,
@@ -50,7 +51,7 @@ public class MainMenu implements Screen {
     private final String skinPath = "Menu/UISkin/uiskin.json";
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
     private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
-    private final CircleBar circleBarAngles,circleBarSpeed;
+    private final CircleBar circleBarAnglesMode,circleBarSpeedAnglesMode, circleBarSpeedLapsMode;
     private final Texture circleArrowTexture, circleGreen, circleYellow;
     public MainMenu() {
         camera = new OrthographicCamera();
@@ -93,12 +94,14 @@ public class MainMenu implements Screen {
         menuState = MenuState.initialState;
 
         /*ANGLES STAGE MENU*/
-        circleBarAngles = new CircleBar(x, y, 2);
-        circleBarSpeed = new CircleBar(70, 0, 1);
+        circleBarAnglesMode = new CircleBar(x, y, 2);
+        circleBarSpeedAnglesMode = new CircleBar(70, 0, 1);
         circleArrowTexture = new Texture("Objects/circle_arrow.png");
         circleGreen = new Texture("Objects/circle_user.png");
         circleYellow = new Texture("Objects/circle_computer.png");
 
+        /*LAPS STAGE MENU*/
+        circleBarSpeedLapsMode = new CircleBar(53, 1, 1);
     }
     @Override
     public void show() {
@@ -127,14 +130,15 @@ public class MainMenu implements Screen {
                 endAngleText.draw(batch);
                 speedText.setXY(40,18);
                 speedText.draw(batch);
-                circleBarAngles.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
-                circleBarSpeed.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu);
+                circleBarAnglesMode.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
+                circleBarSpeedAnglesMode.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu);
                 batch.draw(circleArrowTexture, x+8, y+7, 16, 16);
                 break;
             case lapsState:
                 speedText.setXY(48,50);
                 speedText.draw(batch);
                 rotationText.draw(batch);
+                circleBarSpeedLapsMode.render_speedRotation(batch, delta, 53, 1, GameHandler.speed_MainMenu);
                 break;
         }
         batch.end();
@@ -373,7 +377,9 @@ public class MainMenu implements Screen {
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
                 if(strSpeed.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.speed_MainMenu = 0;
-                }else {
+                } else if (Error == 4) {
+                    GameHandler.speed_MainMenu = 0;
+                } else {
                     GameHandler.speed_MainMenu = Integer.valueOf(txtSpeed.getText().trim());
                     System.out.println("speed: "+GameHandler.speed_MainMenu);
                 }
@@ -392,7 +398,7 @@ public class MainMenu implements Screen {
                 if(isEmpty == false && Error == 0) {
                     GameHandler.screen = "game";
                 }
-                /*POSSIBLE ERRORS COMMITTED*/
+                /*POSSIBLE COMMITTED ERRORS*/
                 else {
                     if(isEmpty){
                         lbError.setText("Completa todos los espacios disponibles");
@@ -430,6 +436,9 @@ public class MainMenu implements Screen {
         /*CHECKBOX - ROTATION MODE*/
         CheckBox cbLeft = new CheckBox("Izquierda", skin);
         CheckBox cbRight = new CheckBox("Derecha", skin);
+        cbLeft.setChecked(true);
+        GameHandler.rotationMode_MainMenu = "izquierda";
+
         Table tableCheckboxes = new Table();
         tableCheckboxes.setFillParent(true);
         tableCheckboxes.setPosition(0,(viewportHeight/4)+20);
@@ -437,14 +446,12 @@ public class MainMenu implements Screen {
         tableCheckboxes.add(cbRight);
         lapsStage.addActor(tableCheckboxes);
 
-        /*LIST - SPEED MODES*/
-        List lstSpeed = new List<>(skin);
-        lstSpeed.setItems("Facil", "Normal", "Dificil");
-        Table tableSpeed = new Table();
-        tableSpeed.setFillParent(true);
-        tableSpeed.setPosition(-5,viewportHeight/60);
-        tableSpeed.add(lstSpeed);
-        lapsStage.addActor(tableSpeed);
+        /*TEXTFIELD - SPEED*/
+        TextField txtSpeed = new TextField("25", skin);
+        txtSpeed.setPosition(viewportWidth/3 + 65, viewportHeight/2);
+        txtSpeed.setSize(85, 30);
+        lapsStage.addActor(txtSpeed);
+        GameHandler.speed_MainMenu = Integer.valueOf(txtSpeed.getText().trim());
 
         /*IMAGEBUTTON - ACCEPT*/
         ImageButton btnAccept = new ImageButton(skinGlassyPath,
@@ -462,26 +469,29 @@ public class MainMenu implements Screen {
 
         /*LABEL - ERRORS DETECTION*/
         Label lbError = new Label("Selecciona un sentido de giro por favor", skin);
-        lbError.setPosition(viewportWidth/3 - 20, viewportHeight/4);
+        lbError.setPosition(viewportWidth/3 - 20, viewportHeight/4 + 15);
 
         /*LISTENERS*/
         btnAccept.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if(cbLeft.isChecked() == false && cbRight.isChecked() == false){
-                    lapsStage.addActor(lbError);
-                    menuState = MenuState.lapsState;
-                }else {
+                Boolean notSelected = cbLeft.isChecked() == false && cbRight.isChecked() == false;
+                String strSpeed = txtSpeed.getText().trim();
+                int Error = ErrorNumberDetection(strSpeed);
+                Boolean noErrors = (Error == 0) && (notSelected == false);
+                /*POSSIBLE COMMITED ERRORS*/
+                if(noErrors){
                     GameHandler.screen = "game";
-                    if(lstSpeed.getSelectedIndex() == 0){
-                        GameHandler.speed_MainMenu = 10;
+                } else {
+                    if (strSpeed.equals("") || Error == 1 || Error == 4) {
+                        GameHandler.speed_MainMenu = 0;
+                        lbError.setText("Ingresa una velocidad menor a " + (int)maxSpeed);
+                        menuState = MenuState.lapsState;
+                    } else{
+                        lbError.setText("Selecciona un sentido de giro por favor");
+                        menuState = MenuState.lapsState;
                     }
-                    if(lstSpeed.getSelectedIndex() == 1){
-                        GameHandler.speed_MainMenu = 20;
-                    }
-                    if(lstSpeed.getSelectedIndex() == 2){
-                        GameHandler.speed_MainMenu = 30;
-                    }
+                    lapsStage.addActor(lbError);
                 }
             }
         });
@@ -489,6 +499,8 @@ public class MainMenu implements Screen {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 menuState = MenuState.configurationState;
+                lbError.setText("");
+                lapsStage.addActor(lbError);
             }
         });
 
@@ -510,26 +522,53 @@ public class MainMenu implements Screen {
                 GameHandler.rotationMode_MainMenu = "derecha";
             }
         });
+        txtSpeed.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                String strSpeed = txtSpeed.getText().trim();
+                int Error = ErrorNumberDetection(strSpeed);
+                if(strSpeed.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
+                    GameHandler.speed_MainMenu = 0;
+                } else if (Error == 4) {
+                    GameHandler.speed_MainMenu = 0;
+                } else {
+                    GameHandler.speed_MainMenu = Integer.valueOf(txtSpeed.getText().trim());
+                    System.out.println("speed: "+GameHandler.speed_MainMenu);
+                }
+            }
+        });
     }
 
-    private int ErrorNumberDetection(String txtInitAngle, String txtEndAngle, String txtspeed){
+    private int ErrorNumberDetection(String strInitAngle, String strEndAngle, String strspeed){
         int initAngle = 0, endAngle = 0, speed = 0;
         try{
-            initAngle = Integer.parseInt(txtInitAngle);
-            endAngle = Integer.parseInt(txtEndAngle);
-            speed = Integer.parseInt(txtspeed);
+            initAngle = Integer.parseInt(strInitAngle);
+            endAngle = Integer.parseInt(strEndAngle);
+            speed = Integer.parseInt(strspeed);
             if((initAngle < 0 || endAngle < 0) || (initAngle > 360 || endAngle > 360)){
                 return 2;
             }
             if((Math.abs(initAngle - endAngle) < 90)|| Math.abs(endAngle - initAngle) < 90){
                 return 3;
             }
-            if(speed > 100){
+            if(speed > maxSpeed){
                 return 4;
             }
         } catch (NumberFormatException exception){
             return 1;
         }
         return 0; // 0 means that there are no errors
+    }
+    private int ErrorNumberDetection(String strspeed){
+        int speed = 0;
+        try {
+            speed = Integer.parseInt(strspeed);
+            if(speed > maxSpeed){
+                return 4;
+            }
+        }catch (NumberFormatException exception){
+            return 1;
+        }
+        return 0;
     }
 }

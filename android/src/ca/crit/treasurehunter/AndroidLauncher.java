@@ -23,7 +23,7 @@ public class AndroidLauncher extends AndroidApplication {
 	private RojoBLE rojoTX, rojoRX;
 	private String strValue;
 	private float pastAngle = 0;
-	private boolean firstEvent = true;
+	private boolean firstEvent = true, flagNormalZone = false, flagRiskZone = false;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,11 +45,12 @@ public class AndroidLauncher extends AndroidApplication {
 			rojoRX.setOnCharacteristicNotificationListener(this::onCharacteristicNotificationListener);
 		}
 		GameHandler.init(GameHandler.MOBILE_ENV);
-		//GameHandler.init(GameHandler.DESKTOP_ENV);
+		GameHandler.init(GameHandler.DESKTOP_ENV);
 	}
 
 	public void onCharacteristicNotificationListener(byte[] value) {
-		final float MaxIncrement = 50; //TODO Fine adjust with kids
+		final float MaxIncrement_NormalZone = 50; //TODO Fine adjust with kids
+		final float MaxIncrement_RiskZone = 310; //TODO Fine adjust with kids
 		float localAngle = 0;
 		float diff;
 
@@ -68,12 +69,40 @@ public class AndroidLauncher extends AndroidApplication {
 		}
 		GameHandler.angle_sensor = localAngle;
 
-		diff = localAngle - pastAngle;
+		/*diff = localAngle - pastAngle;
 		if(localAngle >= 309.99)
 			diff = 360 - diff;
-		if(diff < MaxIncrement) {
+		if(diff < MaxIncrement_NormalZone) {
 			GameHandler.angle_sensor = localAngle;
 			pastAngle = localAngle;
+		}*/
+
+
+		diff = Math.abs(localAngle - pastAngle);
+		if(pastAngle >= 310){
+			flagRiskZone = true;
+			flagNormalZone = false;
+		}else {
+			flagNormalZone = true;
+			flagRiskZone = false;
 		}
+
+		if(flagNormalZone){
+			if(diff > MaxIncrement_NormalZone){
+				GameHandler.angle_sensor = pastAngle;
+			}else {
+				GameHandler.angle_sensor = localAngle;
+				pastAngle = localAngle;
+			}
+		}
+		else if (flagRiskZone) {
+			if(diff > MaxIncrement_RiskZone){
+				GameHandler.angle_sensor = pastAngle;
+			}else {
+				GameHandler.angle_sensor = localAngle;
+				pastAngle = GameHandler.angle_sensor;
+			}
+		}
+		Log.i(TAG, "Angle: " + GameHandler.angle_sensor);
 	}
 }

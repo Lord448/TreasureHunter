@@ -11,12 +11,10 @@ import java.util.Objects;
 public class Main_treasureHunter extends Game {
 	GameScreen gameScreen;
 	MainMenu menuScreen;
-	ResumeScreen resumeScreen;
 	@Override
 	public void create () {
 		gameScreen = new GameScreen();
 		menuScreen = new MainMenu();
-		resumeScreen = new ResumeScreen();
 	}
 
 	@Override
@@ -31,7 +29,6 @@ public class Main_treasureHunter extends Game {
 			GameHandler.screen = "";
 		}
 		if(Objects.equals(GameHandler.screen, "resume")){
-			setScreen(resumeScreen);
 			GameHandler.screen = "";
 		}
 	}
@@ -40,7 +37,6 @@ public class Main_treasureHunter extends Game {
 	public void dispose () {
 		menuScreen.dispose();
 		gameScreen.dispose();
-		resumeScreen.dispose();
 	}
 
 	@Override

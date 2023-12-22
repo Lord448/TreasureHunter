@@ -17,6 +17,7 @@ import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -30,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
 
 public class GameScreen implements Screen {
 
@@ -60,6 +62,9 @@ public class GameScreen implements Screen {
     /*OTHERS*/
     public static boolean flag;
 
+    /*CSV FILES*/
+    private CSVwriter csvWriter;
+
     GameScreen(){
         /*SCREEN*/
         camera = new OrthographicCamera();
@@ -80,6 +85,9 @@ public class GameScreen implements Screen {
 
         /*OTHERS*/
         flag = true;
+
+        /*CSV*/
+        csvWriter = new CSVwriter();
 
         /*STAGE*/
         stage = new Stage(new StretchViewport(720,480, new OrthographicCamera()));
@@ -172,7 +180,8 @@ public class GameScreen implements Screen {
         btnEndGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                screen = "resume";
+                csvWriter.writeCSV("CRIT.csv");
+                openCSV();
             }
         });
         btnReturn.addListener(new ChangeListener() {
@@ -191,9 +200,27 @@ public class GameScreen implements Screen {
             }
         });
     }
+
     private void renderGraphics(float delta){
         Gdx.input.setInputProcessor(stage);
         stage.draw();
         stage.act(delta);
     }
+
+    private void openCSV() {
+        // Ruta relativa o absoluta al archivo CSV creado
+        String filePath = csvWriter.getFilePath();
+        System.out.println("Se intenta abrir: "+ csvWriter.getFilePath());
+
+        // Crea un objeto FileHandle con la ruta del archivo
+        FileHandle file = Gdx.files.internal(filePath);
+
+        // Intenta abrir el archivo
+        if (file.exists()) {
+            Gdx.app.log("Apertura de CSV", "Archivo existe");
+        } else {
+            Gdx.app.log("Apertura de CSV", "El archivo no existe.");
+        }
+    }
+
 }

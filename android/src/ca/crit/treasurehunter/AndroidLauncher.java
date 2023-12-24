@@ -44,8 +44,8 @@ public class AndroidLauncher extends AndroidApplication {
 			rojoRX = new RojoBLE(this, txChUUID, RojoBLE.ROJO_TYPE_NOTIFY, deviceMacAddress);
 			rojoRX.setOnCharacteristicNotificationListener(this::onCharacteristicNotificationListener);
 		}
-		GameHandler.init(GameHandler.MOBILE_ENV);
-		GameHandler.init(GameHandler.DESKTOP_ENV);
+		//GameHandler.init(GameHandler.MOBILE_ENV);
+		//GameHandler.init(GameHandler.DESKTOP_ENV);
 	}
 
 	public void onCharacteristicNotificationListener(byte[] value) {
@@ -56,7 +56,7 @@ public class AndroidLauncher extends AndroidApplication {
 
 		strValue = RojoBLE.getString(value);
 
-		Log.i(TAG, "Received: " + strValue);
+		//Log.i(TAG, "Received: " + strValue);
 		try {
 			localAngle = Float.parseFloat(strValue);
 			if(firstEvent) {
@@ -68,6 +68,7 @@ public class AndroidLauncher extends AndroidApplication {
 			Log.i(TAG, "Dato que llego no es un numero");
 		}
 		GameHandler.angle_sensor = localAngle;
+		//Log.i(TAG, "Sensor: "+GameHandler.angle_sensor);
 
 		/*diff = localAngle - pastAngle;
 		if(localAngle >= 309.99)

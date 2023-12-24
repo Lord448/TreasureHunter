@@ -6,6 +6,7 @@ import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.counter;
+import static ca.crit.treasurehunter.GameHandler.data;
 import static ca.crit.treasurehunter.GameHandler.endAngle_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.gameMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
@@ -15,6 +16,7 @@ import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.screen;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
@@ -31,6 +33,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 
 public class GameScreen implements Screen {
@@ -180,8 +186,21 @@ public class GameScreen implements Screen {
         btnEndGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                csvWriter.writeCSV("CRIT.csv");
-                openCSV();
+
+                /*Updating Data*/
+                GameHandler.setData(data = new String[][]{{"Tesoros", "Vueltas", "Tiempo"},
+                        {String.valueOf(counter), String.valueOf(RoundTrips),
+                                (int)playedTime_min+" min con "+(int)playedTime_sec+ " sec"}});
+
+                /*Setting the date of how the csv file will be saved*/
+                Calendar date = new GregorianCalendar();
+                int day = date.get(Calendar.DAY_OF_MONTH);
+                int month = date.get(Calendar.MONTH);
+                int year = date.get(Calendar.YEAR);
+                String currentDate = day + "-" + (month+1) + "-" + year;
+
+                /*Loading Name and the updated Data to write the file*/
+                csvWriter.writeCSV(GameHandler.card_MainMenu+"_"+currentDate+".csv");
             }
         });
         btnReturn.addListener(new ChangeListener() {

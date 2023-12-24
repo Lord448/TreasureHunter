@@ -51,7 +51,7 @@ public class GameHandler {
      *                                  OTHERS
      * --------------------------------------------------------------------------
      */
-    public static int environment;
+    public static int environment=1;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
 
@@ -82,7 +82,12 @@ public class GameHandler {
      *                                RESUME MENU
      * --------------------------------------------------------------------------
      */
-
+    public static String[][] data = {{"Tesoros", "Vueltas", "Tiempo"},
+            {String.valueOf(0), String.valueOf(0),  0+" min con "+0 + " sec"}};
+    public static void setData(String[][] data) {
+        GameHandler.data = data;
+        System.out.println("data: " + data[1][2]);
+    }
 
     /**
      * --------------------------------------------------------------------------

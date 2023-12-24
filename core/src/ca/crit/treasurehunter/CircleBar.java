@@ -1,7 +1,6 @@
 package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
 import static ca.crit.treasurehunter.GameHandler.angle_sensor;
-import static sun.jvm.hotspot.debugger.win32.coff.DebugVC50X86RegisterEnums.TAG;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -9,8 +8,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-import ca.crit.treasurehunter.Resources.PrintTag;
 
 public class CircleBar {
 
@@ -25,24 +22,24 @@ public class CircleBar {
     Sprite user_sprite = new Sprite(user);
     Sprite computer_sprite = new Sprite(computer);
     float speed_computer, speed_user;       // How fast the circles move forward
-    float hunting_maxDistance;                      // Maximum Distance between both circles that allows the ship to hunt treasures and make parallax
+    float hunting_maxDistance;              // Maximum Distance between both circles that allows the ship to hunt treasures and make parallax
     float angle_computer, angle_user;       // Current angles of the user and computer
     float beginningAngle;                   // Angle where circles begin the movement
-    int farAway_maxDistance;              // Maximum distance allow between both circles before computer circle stops to wait the user circle
+    int farAway_maxDistance;                // Maximum distance allow between both circles before computer circle stops to wait the user circle
 
     /**GAME MODE: ANGLES ATTRIBUTES*/
     float lastAngle;                        // Last angle saves the last position of circle_computer when it exceeds the "maxDistance"
     float endAngle;                         // Limit angle where computer circle goes back to the begging angle to complete a loop
     boolean goForward = false, goBack = false, stop = false;     // Flags to make go forward or go back the computer circle in a certain range
-    private boolean normalCount = false;     //normalCount happens when beginningAngle<endAngle
-    /*GAME MODE: LAPS ATTRIBUTES*/
+    private boolean normalCount = false;    //normalCount happens when beginningAngle<endAngle
+    /**GAME MODE: LAPS ATTRIBUTES*/
     String direction;
     boolean flagLaps = true;
 
     /**FOR SAMPLING VARIABLES*/
-    int angleSample[] = new int[10];       //At what angle a sample is taken
-    float timeSample[];       //At what angle a sample is taken
-    float time;                           //Time played
+    int[] angleSample = new int[10];       //At what angle a sample is taken
+    float[] timeSample;                    //At what angle a sample is taken
+    float time;                            //Time played
     int index = 0, numberOfSamples=0;
 
     /**CONSTRUCTOR AND RENDER OF ANGLES GAME MODE*/
@@ -86,7 +83,6 @@ public class CircleBar {
     public void render_AnglesGame(float deltaTime, final SpriteBatch batch){
         batch_sprite_rotations(batch);
         user_movement(deltaTime);
-
         //PARALLAX AND HUNTING HAPPENS
         GameHandler.reached = isInRange(angle_computer, angle_user);     // Both circles are near each other
 
@@ -140,7 +136,7 @@ public class CircleBar {
         angle_user = beginningAngle;
         angle_computer = beginningAngle;
 
-        if(beginningAngle == 0 & direction =="izquierda"){    //TO RESOLVE START PROBLEMS OF GO ON AT COMPUTER CIRCLE WHEN BEGINNING ANGLE=0
+        if(beginningAngle == 0 & direction.equals("izquierda")){    //TO RESOLVE START PROBLEMS OF GO ON AT COMPUTER CIRCLE WHEN BEGINNING ANGLE=0
             angle_user = 360;                                       // IN IZQUIERDA DIRECTION MODE
         }
 
@@ -216,7 +212,10 @@ public class CircleBar {
 
     /**COMMON METHODS FOR ANGLES GAME MODE AND LAPS GAME MODE*/
     private void user_movement(float deltaTime){
+        System.out.println(GameHandler.environment);
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
+
+
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 angle_user += deltaTime * speed_user;     // How user circle go forward
             }
@@ -227,7 +226,7 @@ public class CircleBar {
         else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
             angle_user = angle_sensor;
         }
-    }   //TODO: NO SE MUEVE CON FLECHAS DEL TECLADO
+    }
 
     private void batch_sprite_rotations(SpriteBatch batch){
         batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
@@ -345,7 +344,7 @@ public class CircleBar {
 
     /**RENDER FOR EXEMPLIFY SPEED ON BOTH GAME MODE MENUS*/
     public void render_speedRotation(final SpriteBatch batch, float deltaTime, float x, float y, float speed){
-        batch.draw(circleTexture, x, y, WIDTH/1, HEIGHT/1);
+        batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
         computer_sprite.setRotation(angle_computer);
         computer_sprite.draw(batch);
         angle_computer += deltaTime * speed;

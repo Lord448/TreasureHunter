@@ -57,7 +57,6 @@ public class TextScreen {
             elapsedTime.draw(batch, (int)GameHandler.playedTime_min +":"+ (int)GameHandler.playedTime_sec + " min", WORLD_WIDTH/2 + 35, WORLD_HEIGHT - 6);
         }
 
-
         if(collided){
             counter ++;
         }

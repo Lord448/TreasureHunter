@@ -62,7 +62,7 @@ public class Background {
             batch.draw(dynamicBackgrounds[0], -backgroundOffsets[0] + WORLD_WIDTH, 0, WORLD_WIDTH, WORLD_HEIGHT);
             /*ANIMACIÓN OCEANO*/
             TextureRegion currentOceanFrame = (TextureRegion) oceanAnimation.getKeyFrame(time, true);
-            batch.draw(currentOceanFrame, -4, 0, WORLD_WIDTH + 4, WORLD_HEIGHT/2);
+            batch.draw(currentOceanFrame, -4, 0, WORLD_WIDTH + 5, WORLD_HEIGHT/2);
             /*FRANJA - EVITA DEFECTO DE FRAMES EN OCEANO*/
             batch.draw(staticBackgrounds[1],0, 29, WORLD_WIDTH, WORLD_HEIGHT/10);
             /*ROCA 2 - DERECHA*/

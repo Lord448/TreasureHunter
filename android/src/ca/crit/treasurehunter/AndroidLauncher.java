@@ -22,7 +22,6 @@ public class AndroidLauncher extends AndroidApplication {
 	private String deviceMacAddress;
 	private RojoBLE rojoTX, rojoRX;
 	private String strValue;
-	private float pastAngle = 0;
 	private boolean firstEvent = true, flagNormalZone = false, flagRiskZone = false;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
@@ -49,8 +48,8 @@ public class AndroidLauncher extends AndroidApplication {
 	}
 
 	public void onCharacteristicNotificationListener(byte[] value) {
-		final float MaxIncrement_NormalZone = 50; //TODO Fine adjust with kids
-		final float MaxIncrement_RiskZone = 310; //TODO Fine adjust with kids
+		final float MaxIncrement = 20; //TODO Fine adjust with kids
+		//final float MaxIncrement_RiskZone = 360-MaxIncrement_NormalZone;
 		float localAngle = 0;
 		float diff;
 
@@ -60,50 +59,29 @@ public class AndroidLauncher extends AndroidApplication {
 		try {
 			localAngle = Float.parseFloat(strValue);
 			if(firstEvent) {
-				pastAngle = localAngle;
+				GameHandler.angle_sensor = localAngle;
 				firstEvent = false;
 			}
 		}
 		catch (NumberFormatException ex) {
 			Log.i(TAG, "Dato que llego no es un numero");
 		}
-		GameHandler.angle_sensor = localAngle;
-		//Log.i(TAG, "Sensor: "+GameHandler.angle_sensor);
 
-		/*diff = localAngle - pastAngle;
-		if(localAngle >= 309.99)
-			diff = 360 - diff;
-		if(diff < MaxIncrement_NormalZone) {
+		/** FIXES THE CIRCLE BE DROWN IN ANGLES WHERE ACTUALLY THE SENSOR IS NOT
+		 * (Consider that if localAngle is 360° it will pass to be a 0° in order to respect a full circle from 0° to 360°)*/
+		diff = Math.abs(localAngle - GameHandler.angle_sensor);
+		//Draws the circle between a range of 0° to 360° degrees
+		if(diff < MaxIncrement){
 			GameHandler.angle_sensor = localAngle;
-			pastAngle = localAngle;
-		}*/
-
-
-		diff = Math.abs(localAngle - pastAngle);
-		if(pastAngle >= 310){
-			flagRiskZone = true;
-			flagNormalZone = false;
-		}else {
-			flagNormalZone = true;
-			flagRiskZone = false;
 		}
-
-		if(flagNormalZone){
-			if(diff > MaxIncrement_NormalZone){
-				GameHandler.angle_sensor = pastAngle;
-			}else {
-				GameHandler.angle_sensor = localAngle;
-				pastAngle = localAngle;
-			}
+		//Allows the circle to be drown from 10° to 350° passing through 0°
+		if(GameHandler.angle_sensor < MaxIncrement && localAngle >= (360-MaxIncrement)){
+			GameHandler.angle_sensor = localAngle;
 		}
-		else if (flagRiskZone) {
-			if(diff > MaxIncrement_RiskZone){
-				GameHandler.angle_sensor = pastAngle;
-			}else {
-				GameHandler.angle_sensor = localAngle;
-				pastAngle = GameHandler.angle_sensor;
-			}
+		//Allows the circle to be drown from 350° to 10° passing through 0°
+		if(GameHandler.angle_sensor > (360-MaxIncrement) && (localAngle-360+GameHandler.angle_sensor) <= MaxIncrement){
+			GameHandler.angle_sensor = localAngle;
 		}
-		Log.i(TAG, "Angle: " + GameHandler.angle_sensor);
+		/**-------------------------------------------------------------------------------------------------------------------*/
 	}
 }

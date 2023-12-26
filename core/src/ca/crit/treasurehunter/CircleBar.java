@@ -212,7 +212,6 @@ public class CircleBar {
 
     /**COMMON METHODS FOR ANGLES GAME MODE AND LAPS GAME MODE*/
     private void user_movement(float deltaTime){
-        System.out.println(GameHandler.environment);
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
 
 

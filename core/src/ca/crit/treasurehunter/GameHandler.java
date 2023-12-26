@@ -26,7 +26,7 @@ public class GameHandler {
      *                                CIRCLE BAR
      * --------------------------------------------------------------------------
      */
-    public static float angle_sensor;
+    public static float angle_sensor = 0;
 
     /**
      * --------------------------------------------------------------------------

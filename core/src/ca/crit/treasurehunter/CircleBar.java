@@ -27,22 +27,16 @@ public class CircleBar {
     float beginningAngle;                   // Angle where circles begin the movement
     int farAway_maxDistance;                // Maximum distance allow between both circles before computer circle stops to wait the user circle
 
-    /**GAME MODE: ANGLES ATTRIBUTES*/
+    /**GAME MODE ATTRIBUTES: ANGLES*/
     float lastAngle;                        // Last angle saves the last position of circle_computer when it exceeds the "maxDistance"
     float endAngle;                         // Limit angle where computer circle goes back to the begging angle to complete a loop
     boolean goForward = false, goBack = false, stop = false;     // Flags to make go forward or go back the computer circle in a certain range
     private boolean normalCount = false;    //normalCount happens when beginningAngle<endAngle
-    /**GAME MODE: LAPS ATTRIBUTES*/
+    /**GAME MODE ATTRIBUTES: LAPS*/
     String direction;
     boolean flagLaps = true;
 
-    /**FOR SAMPLING VARIABLES*/
-    int[] angleSample = new int[10];       //At what angle a sample is taken
-    float[] timeSample;                    //At what angle a sample is taken
-    float time;                            //Time played
-    int index = 0, numberOfSamples=0;
-
-    /**CONSTRUCTOR AND RENDER OF ANGLES GAME MODE*/
+    /**CONSTRUCTOR AND RENDER FOR GAME MODE: ANGLES*/
     public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, float endAngle){
         this.speed_computer = speed_computer;
         this.speed_user = speed_user;
@@ -119,12 +113,9 @@ public class CircleBar {
         if(stop){
             angle_computer = lastAngle;
         }
-
-        /*SAMPLING RENDER*/
-        //render_Sampling(deltaTime); //todo
     }
 
-    /**CONSTRUCTOR AND RENDER OF LAPS GAME MODE*/
+    /**CONSTRUCTOR AND RENDER FOR GAME MODE: LAPS*/
     public CircleBar(float speed_computer, float speed_user, float hunting_maxDistance,int farAway_maxDistance, float beginningAngle, String direction){
         this.speed_computer = speed_computer;
         this.speed_user = speed_user;
@@ -210,17 +201,17 @@ public class CircleBar {
         }
     }
 
-    /**COMMON METHODS FOR ANGLES GAME MODE AND LAPS GAME MODE*/
+
+    /**COMMON METHODS FOR GAME MODE: LAPS & ANGLES*/
     private void user_movement(float deltaTime){
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
-
-
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 angle_user += deltaTime * speed_user;     // How user circle go forward
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 angle_user -= deltaTime * speed_user;     // How user circle go back
             }
+            GameHandler.angle_laptop = angle_user;
         }
         else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
             angle_user = angle_sensor;
@@ -267,52 +258,7 @@ public class CircleBar {
         circleTexture.dispose();
     }
 
-    /**SAMPLING TIME PER ANGLES*/
-    public void timeSamples(float beginningAngle, float endAngle){
-        int samplePerAngle = (int)(Math.abs(endAngle - beginningAngle)/10);     //Angle separation between samples
-
-        if(beginningAngle < endAngle){
-            for (int i=angleSample.length-1; i >= 0; i--){
-                angleSample[i] = samplePerAngle * (i+1);
-            }
-
-        } else if (beginningAngle > endAngle) {
-            for (int i=0; i<angleSample.length; i++){
-                angleSample[i] = samplePerAngle * (i+1);
-            }
-        }
-
-    }
-    public void render_Sampling(float deltaTime){
-        time += deltaTime;
-
-        if(goForward)
-            if(angle_user > angleSample[index]){
-                timeSample[numberOfSamples] = time;
-                System.out.println(timeSample[numberOfSamples]);
-                time = 0;
-                numberOfSamples ++;
-                index ++;
-                if(index > 10){
-                    index = 10;
-                }
-            }
-
-        if(goBack){
-            if(angle_user < angleSample[index]){
-                timeSample[numberOfSamples] = time;
-                System.out.println(timeSample[numberOfSamples]);
-                time = 0;
-                numberOfSamples ++;
-                index --;
-                if(index < 0){
-                    index = 0;
-                }
-            }
-        }
-    }
-
-    /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON THE ANGLES GAME MODE MENU*/
+    /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON GAME MODE MENU: ANGLES*/
     public CircleBar(float x, float y, int numberOfCircles){
         if(numberOfCircles == 1){
             computer_sprite.setSize(WIDTH, HEIGHT);
@@ -341,7 +287,7 @@ public class CircleBar {
         computer_sprite.draw(batch);
     }
 
-    /**RENDER FOR EXEMPLIFY SPEED ON BOTH GAME MODE MENUS*/
+    /**RENDER FOR EXEMPLIFY SPEED GAME MODE MENU: ANGLES & LAPS*/
     public void render_speedRotation(final SpriteBatch batch, float deltaTime, float x, float y, float speed){
         batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
         computer_sprite.setRotation(angle_computer);
@@ -351,4 +297,6 @@ public class CircleBar {
             angle_computer = 0;
         }
     }
+
+    /**GETTERS AND SETTERS*/
 }

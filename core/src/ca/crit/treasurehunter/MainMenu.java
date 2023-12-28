@@ -51,7 +51,7 @@ public class MainMenu implements Screen {
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
     private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
     private final CircleBar circleBarAnglesMode,circleBarSpeedAnglesMode, circleBarSpeedLapsMode;
-    private final Texture circleArrowTexture, circleGreen, circleYellow;
+    private final Texture circleArrowsLeftTexture, circleArrowsRightTexture, circleGreen, circleYellow;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -95,7 +95,8 @@ public class MainMenu implements Screen {
         /*ANGLES STAGE MENU*/
         circleBarAnglesMode = new CircleBar(x, y, 2);
         circleBarSpeedAnglesMode = new CircleBar(70, 0, 1);
-        circleArrowTexture = new Texture("Objects/circle_arrow.png");
+        circleArrowsLeftTexture = new Texture("Objects/circle_arrows-Left.png");
+        circleArrowsRightTexture = new Texture("Objects/circle_arrows-Right.png");
         circleGreen = new Texture("Objects/circle_user.png");
         circleYellow = new Texture("Objects/circle_computer.png");
 
@@ -131,7 +132,12 @@ public class MainMenu implements Screen {
                 speedText.draw(batch);
                 circleBarAnglesMode.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
                 circleBarSpeedAnglesMode.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu);
-                batch.draw(circleArrowTexture, x+8, y+7, 16, 16);
+                if(GameHandler.beginningAngle_MainMenu > GameHandler.endAngle_MainMenu){
+                    batch.draw(circleArrowsRightTexture, x+8, y+7, 16, 16);
+                }else {
+                    batch.draw(circleArrowsLeftTexture, x+8, y+7, 16, 16);
+                }
+
                 break;
             case lapsState:
                 speedText.setXY(48,50);
@@ -227,7 +233,7 @@ public class MainMenu implements Screen {
         Label lbError = new Label("Selecciona un modo de juego", skin2);
 
         /*TEXTFIELD - NO.CARNET*/
-        TextField txtCard = new TextField("", skin);
+        TextField txtCard = new TextField(" ", skin);
         txtCard.setPosition(viewportWidth/3 +45,viewportHeight/2 + 120);
         configStage.addActor(txtCard);
 

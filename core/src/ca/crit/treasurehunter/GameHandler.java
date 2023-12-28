@@ -1,6 +1,8 @@
 package ca.crit.treasurehunter;
 
 
+import java.util.ArrayList;
+
 public class GameHandler {
     /**
      * --------------------------------------------------------------------------
@@ -26,7 +28,8 @@ public class GameHandler {
      *                                CIRCLE BAR
      * --------------------------------------------------------------------------
      */
-    public static float angle_sensor = 0;
+    public static float angle_sensor = 0;   //  Saves the angle captured by the sensor
+    public static float angle_laptop = 0;   //  Saves the angle updated from the arrows of the laptop
 
     /**
      * --------------------------------------------------------------------------
@@ -51,7 +54,7 @@ public class GameHandler {
      *                                  OTHERS
      * --------------------------------------------------------------------------
      */
-    public static int environment=1;
+    public static int environment = 2;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
 
@@ -60,15 +63,14 @@ public class GameHandler {
      *                                MAIN MENU
      * --------------------------------------------------------------------------
      */
-    public static String gameMode_MainMenu;                 //Angles mode or laps mode
+    public static String gameMode_MainMenu;                 //"angles" mode or "laps" mode
     public static Integer beginningAngle_MainMenu = 0;      //Chosen angle to initialize on Angles game mode
     public static Integer endAngle_MainMenu = 0;            //Chosen angle to finish on Angles game mode
     public static Integer speed_MainMenu = 0;               //Speed of the computer circle to chase on both game modes
     public static String screen = "menu";                   //Runs the game on the screen: MainMenu/Game/Resume(Information)
-    public static String rotationMode_MainMenu;             //The direction of the computer's circle rotation
+    public static String rotationMode_MainMenu;             //The direction of the computer's circle rotation "izquierda" or "derecha"
     public static String card_MainMenu;                     //Saves the user's number card
 
-    //TODO: FIZ THAT GAME DOESNT WORK WITH THE ARROWS FROM THE LAPTOP
     /**
      * --------------------------------------------------------------------------
      *                                SCREEN
@@ -82,12 +84,8 @@ public class GameHandler {
      *                                RESUME MENU
      * --------------------------------------------------------------------------
      */
-    public static String[][] data = {{"Tesoros", "Vueltas", "Tiempo"},
-            {String.valueOf(0), String.valueOf(0),  0+" min con "+0 + " sec"}};
-    public static void setData(String[][] data) {
-        GameHandler.data = data;
-        System.out.println("data: " + data[1][2]);
-    }
+    public static String[][] headerTextData = new String[3][3];
+    public static ArrayList<ArrayList<String>> resumeData = new ArrayList<>();    //array dinamico
 
     /**
      * --------------------------------------------------------------------------

@@ -3,10 +3,11 @@ package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
 import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
 import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
+import static ca.crit.treasurehunter.GameHandler.angle_laptop;
+import static ca.crit.treasurehunter.GameHandler.angle_sensor;
 import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.collided;
 import static ca.crit.treasurehunter.GameHandler.counter;
-import static ca.crit.treasurehunter.GameHandler.data;
 import static ca.crit.treasurehunter.GameHandler.endAngle_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.gameMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
@@ -16,26 +17,22 @@ import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.screen;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
 
@@ -68,8 +65,9 @@ public class GameScreen implements Screen {
     /*OTHERS*/
     public static boolean flag;
 
-    /*CSV FILES*/
+    /*TO DISPLAY INFORMATION*/
     private CSVwriter csvWriter;
+    private Sampling anglesSampling, lapsSampling;
 
     GameScreen(){
         /*SCREEN*/
@@ -92,9 +90,6 @@ public class GameScreen implements Screen {
         /*OTHERS*/
         flag = true;
 
-        /*CSV*/
-        csvWriter = new CSVwriter();
-
         /*STAGE*/
         stage = new Stage(new StretchViewport(720,480, new OrthographicCamera()));
         skin = new Skin(Gdx.files.internal("Menu/ShadeUISkin/uiskin.json"));
@@ -102,24 +97,34 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         circleBarAngles = new CircleBar( speed_MainMenu, 70, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
-        circleBarLaps = new CircleBar(speed_MainMenu, 70, 15,50, 200, rotationMode_MainMenu);
+        circleBarLaps = new CircleBar(speed_MainMenu, 70, 15,50, 0, rotationMode_MainMenu);
         stage_constructor();
+
+        /*TO DISPLAY INFORMATION*/
+        csvWriter = new CSVwriter();
+        if(gameMode_MainMenu == "angles"){
+            anglesSampling = new Sampling(beginningAngle_MainMenu, endAngle_MainMenu);
+        }
+        else if (gameMode_MainMenu == "laps") {
+            lapsSampling = new Sampling();
+        }
     }
 
     @Override
     public void render(float delta) {
-        playedTime_sec += delta;     // How many time has passed since the game started
+
+        /**TO KNOW HOW MUCH TIME HAS PASSED SINCE THE GAME STARTED*/
+        playedTime_sec += delta;
         if(playedTime_sec >= 60){
             playedTime_min ++;
             playedTime_sec = 0;
         }
-
-        /*COUNT THE TREASURES COLLECTED*/
+        /**COUNT THE TREASURES COLLECTED*/
         if(Intersector.overlaps(treasures.rectangle, ship.rectangle) && flag){
             counter ++;
             flag = false;
         }
-        /* TO KNOW IF SHIP-TREASURE COLLIDED*/
+        /** TO KNOW IF SHIP-TREASURE COLLIDED*/
         if(Intersector.overlaps(treasures.rectangle, ship.rectangle)){
             collided = true;
             onomatopoeiaAppear = true;
@@ -140,6 +145,22 @@ public class GameScreen implements Screen {
         batch.end();
 
         renderGraphics(delta);
+
+        if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
+            if(gameMode_MainMenu == "angles"){
+                anglesSampling.angles_render(delta, angle_laptop);
+            } else if (gameMode_MainMenu == "laps") {
+                lapsSampling.laps_render(delta, angle_laptop);
+            }
+
+        } else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
+            if(gameMode_MainMenu == "angles"){
+                anglesSampling.angles_render(delta, angle_sensor);
+            } else if (gameMode_MainMenu == "laps") {
+                lapsSampling.laps_render(delta, angle_sensor);
+            }
+        }
+
     }
 
     @Override
@@ -188,9 +209,12 @@ public class GameScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
 
                 /*Updating Data*/
-                GameHandler.setData(data = new String[][]{{"Tesoros", "Vueltas", "Tiempo"},
-                        {String.valueOf(counter), String.valueOf(RoundTrips),
-                                (int)playedTime_min+" min con "+(int)playedTime_sec+ " sec"}});
+                GameHandler.headerTextData = new String[][]{
+                        {"Tesoros", "Vueltas", "Duración Sesión"},
+                        {String.valueOf(counter), String.valueOf(RoundTrips), (int) playedTime_min + " min con " + (int) playedTime_sec + " sec"},
+                        {"Ciclo", "Ángulo", "Alcanzado en"}
+                };
+                printMatrix(GameHandler.resumeData);
 
                 /*Setting the date of how the csv file will be saved*/
                 Calendar date = new GregorianCalendar();
@@ -208,7 +232,7 @@ public class GameScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 /*RETURN TO THE MENU*/
                 screen = "menu";
-                /*RESET GLOBAL VARIABLES*/
+                /*RESET TEXT SCREEN DATA*/
                 playedTime_min = 0;
                 playedTime_sec = 0;
                 RoundTrips = 0;
@@ -216,6 +240,8 @@ public class GameScreen implements Screen {
                 /*RESET TREASURE CLASS VARIABLES*/
                 treasures.setX(WORLD_WIDTH+70);
                 treasures.setInitialX_Position(WORLD_WIDTH+70);
+                /*RESET RESUME DATA*/
+                GameHandler.resumeData.clear();
             }
         });
     }
@@ -225,21 +251,13 @@ public class GameScreen implements Screen {
         stage.draw();
         stage.act(delta);
     }
-
-    private void openCSV() {
-        // Ruta relativa o absoluta al archivo CSV creado
-        String filePath = csvWriter.getFilePath();
-        System.out.println("Se intenta abrir: "+ csvWriter.getFilePath());
-
-        // Crea un objeto FileHandle con la ruta del archivo
-        FileHandle file = Gdx.files.internal(filePath);
-
-        // Intenta abrir el archivo
-        if (file.exists()) {
-            Gdx.app.log("Apertura de CSV", "Archivo existe");
-        } else {
-            Gdx.app.log("Apertura de CSV", "El archivo no existe.");
+    public static void printMatrix(ArrayList<ArrayList<String>> dynamicArray) {
+        // Imprimir el contenido
+        for (ArrayList<String> row : dynamicArray) {
+            for (String value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
         }
     }
-
 }

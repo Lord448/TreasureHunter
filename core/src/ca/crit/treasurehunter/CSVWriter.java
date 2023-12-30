@@ -1,24 +1,25 @@
 package ca.crit.treasurehunter;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 
 import java.util.ArrayList;
 
-public class CSVwriter {
-    private String filePath;
-    private Sampling sampling;
+public class CSVWriter {
 
     /**METHODS*/
     public void writeCSV(String fileName) {
-        String externalStoragePath = Gdx.files.getExternalStoragePath(); // Obtén el directorio externo de almacenamiento específico de la aplicación
+        String externalStoragePath = Gdx.files.getExternalStoragePath(); // Getting the specific external saving file path from the app
 
-        filePath = externalStoragePath + fileName;  // Combina el directorio externo con el nombre del archivo
-        System.out.println("se guardo en: "+filePath);
+        String filePath = externalStoragePath + fileName;  // Combining the extern saving file path with the wished file name
+        GameHandler.savedFilePath = filePath;
+        System.out.println("Archivo CSV descargado en: "+ GameHandler.savedFilePath);
 
-        FileHandle file = Gdx.files.absolute(filePath); // Crea un FileHandle con la ruta completa
+        FileHandle file = Gdx.files.absolute(filePath); // Creating a fileHandle with the complete saving file path
 
         try {
+            /**----------------------------------------------
+             *      SAVING THE SCREEN'S DATA TEXT
+             *----------------------------------------------*/
             StringBuilder csvScreenData = new StringBuilder();
             for (String[] row : GameHandler.headerTextData) {
                 for (String value : row) {
@@ -27,16 +28,21 @@ public class CSVwriter {
                 csvScreenData.setLength(csvScreenData.length() - 1); // Remove the trailing comma
                 csvScreenData.append("\n");
             }
-            file.writeString(csvScreenData.toString(), false);
 
+            /**-------------------------------------------------
+             * SAVING THE TAKEN ANGLES SAMPLES DURING THE GAME
+             * -----------------------------------------------*/
             StringBuilder csvResumeData = new StringBuilder();
             for(ArrayList<String> row : GameHandler.resumeData){
                 for (String value : row){
                     csvResumeData.append(value).append(",");
                 }
-                csvResumeData.setLength(csvResumeData.length()-1);
+                csvResumeData.setLength(csvResumeData.length()-1);  // Remove the trailing comma
                 csvResumeData.append("\n");
             }
+
+            /**WRITING THE CSV FILE*/
+            file.writeString(csvScreenData.toString(), false);
             file.writeString(csvResumeData.toString(), true);
             Gdx.app.log("Escritura de CSV", "Archivo escrito exitosamente");
 
@@ -44,10 +50,6 @@ public class CSVwriter {
             e.printStackTrace();
             Gdx.app.error("Escritura de CSV", "Error al escribir en el archivo");
         }
-    }
-    /**Getters*/
-    public String getFilePath() {
-        return filePath;
     }
 }
 

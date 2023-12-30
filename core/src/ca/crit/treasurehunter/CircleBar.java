@@ -90,13 +90,13 @@ public class CircleBar {
         if(angle_computer < beginningAngle){        // Computer circle arrived to the beginning angle
             goForward = true;                       // Computer circle has to go forward
             goBack = false;
-            if(normalCount == true){
+            if(normalCount){
                 RoundTrips ++;
             }
         }else if (angle_computer > endAngle){       // Computer circle arrived to the end angle
             goForward = false;
             goBack = true;                          // Computer circle has to go back
-            if(normalCount == false){
+            if(!normalCount){
                 RoundTrips ++;
             }
         }
@@ -297,6 +297,4 @@ public class CircleBar {
             angle_computer = 0;
         }
     }
-
-    /**GETTERS AND SETTERS*/
 }

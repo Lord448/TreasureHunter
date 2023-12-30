@@ -13,6 +13,7 @@ import static ca.crit.treasurehunter.GameHandler.gameMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.onomatopoeiaAppear;
 import static ca.crit.treasurehunter.GameHandler.playedTime_sec;
 import static ca.crit.treasurehunter.GameHandler.playedTime_min;
+import static ca.crit.treasurehunter.GameHandler.printMatrix;
 import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.screen;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
@@ -31,7 +32,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -59,14 +59,14 @@ public class GameScreen implements Screen {
 
     /*GRAPHIC USAGES*/
     private TextButton btnEndGame, btnReturn;
-    private Skin skin;
-    private Stage stage;
+    private final Skin skin;
+    private final Stage stage;
 
     /*OTHERS*/
     public static boolean flag;
 
     /*TO DISPLAY INFORMATION*/
-    private CSVwriter csvWriter;
+    private CSVWriter csvWriter;
     private Sampling anglesSampling, lapsSampling;
 
     GameScreen(){
@@ -101,11 +101,11 @@ public class GameScreen implements Screen {
         stage_constructor();
 
         /*TO DISPLAY INFORMATION*/
-        csvWriter = new CSVwriter();
-        if(gameMode_MainMenu == "angles"){
+        csvWriter = new CSVWriter();
+        if(gameMode_MainMenu.equals("angles")){
             anglesSampling = new Sampling(beginningAngle_MainMenu, endAngle_MainMenu);
         }
-        else if (gameMode_MainMenu == "laps") {
+        else if (gameMode_MainMenu.equals("laps")) {
             lapsSampling = new Sampling();
         }
     }
@@ -147,16 +147,16 @@ public class GameScreen implements Screen {
         renderGraphics(delta);
 
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
-            if(gameMode_MainMenu == "angles"){
+            if(gameMode_MainMenu.equals("angles")){
                 anglesSampling.angles_render(delta, angle_laptop);
-            } else if (gameMode_MainMenu == "laps") {
+            } else if (gameMode_MainMenu.equals("laps")) {
                 lapsSampling.laps_render(delta, angle_laptop);
             }
 
         } else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
-            if(gameMode_MainMenu == "angles"){
+            if(gameMode_MainMenu.equals("angles")){
                 anglesSampling.angles_render(delta, angle_sensor);
-            } else if (gameMode_MainMenu == "laps") {
+            } else if (gameMode_MainMenu.equals("laps")) {
                 lapsSampling.laps_render(delta, angle_sensor);
             }
         }
@@ -208,7 +208,7 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
 
-                /*Updating Data*/
+                /*Updating Text Screen Data and writing the CSV file headers*/
                 GameHandler.headerTextData = new String[][]{
                         {"Tesoros", "Vueltas", "Duración Sesión"},
                         {String.valueOf(counter), String.valueOf(RoundTrips), (int) playedTime_min + " min con " + (int) playedTime_sec + " sec"},
@@ -250,14 +250,5 @@ public class GameScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
         stage.draw();
         stage.act(delta);
-    }
-    public static void printMatrix(ArrayList<ArrayList<String>> dynamicArray) {
-        // Imprimir el contenido
-        for (ArrayList<String> row : dynamicArray) {
-            for (String value : row) {
-                System.out.print(value + " ");
-            }
-            System.out.println();
-        }
     }
 }

@@ -92,7 +92,24 @@ public class GameHandler {
      *                                METHODS
      * --------------------------------------------------------------------------
      */
+    public static String savedFilePath;
+
+    /**
+     * --------------------------------------------------------------------------
+     *                                METHODS
+     * --------------------------------------------------------------------------
+     */
     public static void init(int env){
         GameHandler.environment = env;
+    }
+
+    public static void printMatrix(ArrayList<ArrayList<String>> dynamicArray) {
+        // Imprimir el contenido
+        for (ArrayList<String> row : dynamicArray) {
+            for (String value : row) {
+                System.out.print(value + " ");
+            }
+            System.out.println();
+        }
     }
 }

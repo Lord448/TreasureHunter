@@ -12,13 +12,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Timer;
+
 public class TextScreen {
     private final BitmapFont treasureCounter;   //Creado con fuente
     private final BitmapFont elapsedTime;   //Creado con fuente
     private final BitmapFont lapsCounter;   //Creado con fuente
     private final Texture collisionTexture;         //Creado con Imagen
     private final Texture treasureTexture;         //Creado con Imagen
-    private float timer;
+    //private float timer;
 
     TextScreen(){
         /*POINTS COUNTER*/
@@ -37,7 +39,6 @@ public class TextScreen {
         /*ONOMATOPOEIA COLLISION*/
         collisionTexture = new Texture("Fonts/onomat_bien.png");
 
-        timer = 0;
         onomatopoeiaAppear = false;
     }
 
@@ -62,12 +63,14 @@ public class TextScreen {
         }
         if(onomatopoeiaAppear){
             batch.draw(collisionTexture, 34, GameHandler.treasurePosition-4, WORLD_HEIGHT/4, WORLD_HEIGHT/4);
-            timer += Gdx.graphics.getDeltaTime();
-            if(timer >=2){
-                onomatopoeiaAppear = false;
-                timer = 0;
-                GameScreen.flag = true;
-            }
+            /*Onomatopoeia disappears after 2 seconds*/
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    onomatopoeiaAppear = false;
+                    GameScreen.flag = true;
+                }
+            }, 2f);
         }
     }
     public void dispose(){

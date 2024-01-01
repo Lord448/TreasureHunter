@@ -1,5 +1,7 @@
 package ca.crit.treasurehunter;
 
+import com.badlogic.gdx.Game;
+
 import java.util.ArrayList;
 
 public class Sampling {
@@ -9,7 +11,8 @@ public class Sampling {
     private int cycle;                                  //the sample lot number
     private float elapsedTime;                          //the time that has passed before user arrived to the correct angle
     private boolean goForward=false, goBack=false;      //goForward to samples in a right direction and goBack in a left direction
-    private int row;                                    //the number of rows to be written at the CSV file
+    private int row;                              //the number of rows to be written at the CSV file
+    private CSVWriter csvWriter = new CSVWriter();
 
     /**-------------------------------------------------------
      *                  ANGLES GAME MODE
@@ -32,11 +35,9 @@ public class Sampling {
         }
         row = 0;
         cycle = 1;
-        GameHandler.resumeData.add(new ArrayList<>());  //Creating the first row to fill in
+
         /*If the user selects "Finalizar sesión" button before any sample, CVS file will be written with the text bellow*/
-        GameHandler.resumeData.get(0).add("No hay valores capturados aún"); //Text written at the Cycle column
-        GameHandler.resumeData.get(0).add("No hay valores capturados aún"); //Text written at the Angle column
-        GameHandler.resumeData.get(0).add("No hay valores capturados aún"); //Text written at the Reached time column
+        csvWriter.noneData_CSVFile(GameHandler.resumeData);
     }
     public void angles_render(float deltaTime, float userAngle){
         if(goForward){
@@ -45,22 +46,26 @@ public class Sampling {
         } else if (goBack) {
             goBack_Sampling(deltaTime, userAngle);
         }
+        System.out.println("USER:"+userAngle+" ANGLE:"+angleSample[index]);
     }
 
     /*Methods for Sampling in Game Mode: ANGLES*/
     public void goForward_Sampling(float deltaTime, float userAngle){
         boolean angleReached = userAngle > (angleSample[index]-hysteresis) && userAngle < (angleSample[index]+hysteresis);
         if(angleReached){
-            gettingSampledData();   //Method that saves the samples into a dynamic array
+            //Method that saves the samples into a dynamic array
+            csvWriter.sampledData_CSVFile(GameHandler.resumeData, row, cycle, angleSample, index, elapsedTime);
+            row ++;
             elapsedTime = 0;
             index ++;
-            if(index > 10){         //Prepare variables to sample in the opposite direction
+            if(index > 10){                      //Prepare variables to sample in the opposite direction
                 index = index-2;
                 cycle ++;
                 elapsedTime = 0;
                 goBack = true;
                 goForward = false;
-                addingEmptyRow();   //Method to write and empty row inside the CSV file to separate cycles
+                csvWriter.addingEmptyRow(GameHandler.resumeData, row);   //Method to write and empty row inside the CSV file to separate cycles
+                row++;
             }
         }else {
             elapsedTime += deltaTime;
@@ -69,16 +74,18 @@ public class Sampling {
     public void goBack_Sampling(float deltaTime, float userAngle){
         boolean angleReached = userAngle > (angleSample[index]-hysteresis) && userAngle < (angleSample[index]+hysteresis);
         if(angleReached){
-            gettingSampledData();   //Method that saves the samples into a dynamic array
+            csvWriter.sampledData_CSVFile(GameHandler.resumeData, row, cycle, angleSample, index, elapsedTime);   //Method that saves the samples into a dynamic array
+            row ++;
             elapsedTime = 0;
             index --;
-            if(index < 0){          //Prepare variables to sample in the opposite direction
+            if(index < 0){                       //Prepare variables to sample in the opposite direction
                 index = index + 2;
                 cycle ++;
                 elapsedTime = 0;
                 goForward = true;
                 goBack = false;
-                addingEmptyRow();
+                csvWriter.addingEmptyRow(GameHandler.resumeData, row);   //Method to write and empty row inside the CSV file to separate cycles
+                row++;
             }
         }else {
             elapsedTime += deltaTime;
@@ -100,11 +107,9 @@ public class Sampling {
         }
         row = 0;
         cycle = 1;
-        GameHandler.resumeData.add(new ArrayList<>());  //Creating the first row to fill in
+
         /*If the user selects "Finalizar sesión" button before any sample, CVS file will be written with the text bellow*/
-        GameHandler.resumeData.get(0).add("No hay valores capturados aún"); //Text written at the Cycle column
-        GameHandler.resumeData.get(0).add("No hay valores capturados aún"); //Text written at the Angle column
-        GameHandler.resumeData.get(0).add("No hay valores capturados aún"); //Text written at the Reached time column
+        csvWriter.noneData_CSVFile(GameHandler.resumeData);
     }
     public void laps_render(float deltaTime, float userAngle){
         if(GameHandler.rotationMode_MainMenu.equals("izquierda")){
@@ -119,14 +124,17 @@ public class Sampling {
     public void leftRotation_Sampling(float deltaTime, float userAngle){
         boolean angleReached = userAngle > (angleSample[index]-hysteresis) && userAngle < (angleSample[index]+hysteresis);
         if(angleReached){
-            gettingSampledData();
+            //Method that saves the samples into a dynamic array
+            csvWriter.sampledData_CSVFile(GameHandler.resumeData, row, cycle, angleSample, index, elapsedTime);
+            row ++;
             elapsedTime = 0;
             index ++;
             if(index > 10){
-                index = 1;  //index reset to sample from angleSample[1] = 36° to angleSample[10] = 360°
+                index = 1;                      //index reset to sample from angleSample[1] = 36° to angleSample[10] = 360°
                 cycle ++;
                 elapsedTime = 0;
-                addingEmptyRow();
+               csvWriter.addingEmptyRow(GameHandler.resumeData, row);   //Method to write and empty row inside the CSV file to separate cycles
+                row++;
             }
         }else {
             elapsedTime += deltaTime;
@@ -135,44 +143,20 @@ public class Sampling {
     public void rightRotation_Sampling(float deltaTime, float userAngle){
         boolean angleReached = userAngle > (angleSample[index]-hysteresis) && userAngle < (angleSample[index]+hysteresis);
         if(angleReached){
-            gettingSampledData();
+            //Method that saves the samples into a dynamic array
+            csvWriter.sampledData_CSVFile(GameHandler.resumeData, row, cycle, angleSample, index, elapsedTime);
+            row ++;
             elapsedTime = 0;
             index --;
             if(index < 0){
-                index = 9; //index reset to sample from angleSample[9] = 324° to angleSample[0] = 0°
+                index = 9;                      //index reset to sample from angleSample[9] = 324° to angleSample[0] = 0°
                 cycle ++;
                 elapsedTime = 0;
-                addingEmptyRow();
+                csvWriter.addingEmptyRow(GameHandler.resumeData, row);  //Method to write and empty row inside the CSV file to separate cycles
+                row++;
             }
         }else {
             elapsedTime += deltaTime;
         }
-    }
-
-    /**-------------------------------------------------------
-     *                         METHODS
-     * --------------------------------------------------------*/
-    /*Saving the Samples into the variable that keeps the resume data*/
-    @SuppressWarnings("DefaultLocale")
-    private void gettingSampledData(){
-        if(row == 0){   //To set with important variables the first row (in case that the user tried to write into the CSV file with none samples)
-            GameHandler.resumeData.get(row).set(0, String.valueOf(cycle));
-            GameHandler.resumeData.get(row).set(1, (int) angleSample[index] + "°");
-            GameHandler.resumeData.get(row).set(2, String.format("%.2f",elapsedTime) + " sec");
-        }else { //filling the information variable with No.Cycle, No.Sampled angle and the Time to reach the sampled angle
-            GameHandler.resumeData.get(row).add(String.valueOf(cycle));
-            GameHandler.resumeData.get(row).add((int) angleSample[index] + "°");
-            GameHandler.resumeData.get(row).add(String.format("%.2f",elapsedTime) + " sec");
-        }
-        row ++;
-        GameHandler.resumeData.add(new ArrayList<>());  //Creating a new row to fill in
-    }
-    /*Writes an empty row inside the CSV file*/
-    private void addingEmptyRow(){
-        GameHandler.resumeData.get(row).add(" ");
-        GameHandler.resumeData.get(row).add(" ");
-        GameHandler.resumeData.get(row).add(" ");
-        row++;
-        GameHandler.resumeData.add(new ArrayList<>());  //Creating a new row to fill in
     }
 }

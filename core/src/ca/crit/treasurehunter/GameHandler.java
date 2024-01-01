@@ -1,6 +1,9 @@
 package ca.crit.treasurehunter;
 
 
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Timer;
+
 import java.util.ArrayList;
 
 public class GameHandler {
@@ -54,7 +57,7 @@ public class GameHandler {
      *                                  OTHERS
      * --------------------------------------------------------------------------
      */
-    public static int environment = 2;
+    public static int environment = 1;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
 
@@ -84,15 +87,15 @@ public class GameHandler {
      *                                RESUME MENU
      * --------------------------------------------------------------------------
      */
-    public static String[][] headerTextData = new String[3][3];
-    public static ArrayList<ArrayList<String>> resumeData = new ArrayList<>();    //array dinamico
+    public static ArrayList<ArrayList<String>> relevantData = new ArrayList<>();  //dynamic array for display relevant captured Data
+    public static ArrayList<ArrayList<String>> resumeData = new ArrayList<>();      //dynamic array for Sampling Data
 
     /**
      * --------------------------------------------------------------------------
-     *                                METHODS
+     *                                CSV FILE
      * --------------------------------------------------------------------------
      */
-    public static String savedFilePath;
+    public static String savedFilePath = "path";
 
     /**
      * --------------------------------------------------------------------------
@@ -111,5 +114,21 @@ public class GameHandler {
             }
             System.out.println();
         }
+    }
+
+    public static void labelBlink(Label label, float visibleTime, float invisibleTime){
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                label.setVisible(false);
+
+                Timer.schedule(new Timer.Task() {
+                    @Override
+                    public void run() {
+                        label.setVisible(true);
+                    }
+                }, visibleTime); // 1 segundo de espera
+            }
+        }, invisibleTime); // 1 segundo de espera
     }
 }

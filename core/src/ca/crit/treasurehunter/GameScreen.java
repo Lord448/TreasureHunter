@@ -17,7 +17,6 @@ import static ca.crit.treasurehunter.GameHandler.printMatrix;
 import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.screen;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
@@ -26,6 +25,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -56,16 +56,17 @@ public class GameScreen implements Screen {
 
     /*TEXT*/
     private final TextScreen textScreen;
+    private final Skin skin;
 
     /*GRAPHIC USAGES*/
     private TextButton btnEndGame, btnReturn;
-    private final Skin skin;
     private final Stage stage;
 
     /*OTHERS*/
-    public static boolean flag;
+    public static boolean flag = true;  //usage in the overlap within ship-treasure
+    private boolean firstTry = true;    //usage in the csv file path label blink
 
-    /*TO DISPLAY INFORMATION*/
+    /*TO DISPLAY INFORMATION ON CSV FILE*/
     private CSVWriter csvWriter;
     private Sampling anglesSampling, lapsSampling;
 
@@ -196,6 +197,11 @@ public class GameScreen implements Screen {
     }
 
     private void stage_constructor(){
+        /**LABEL CSV FILE PATH DOWNLOADED*/
+        final Skin skin1 = new Skin(Gdx.files.internal("Menu/GlassyUI/assets/glassy-ui.json"));
+        Label lbCsvPath = new Label("Descargado en "+GameHandler.savedFilePath, skin1);
+
+        /**SCREEN BUTTONS*/
         btnEndGame = new TextButton("Finalizar Sesion", skin);
         btnEndGame.setPosition(600, 440);
         stage.addActor(btnEndGame);
@@ -203,17 +209,13 @@ public class GameScreen implements Screen {
         btnReturn = new TextButton("Regresar", skin);
         btnReturn.setPosition(10, 440);
         stage.addActor(btnReturn);
-        /*LISTENERS*/
+
+        /**LISTENERS*/
         btnEndGame.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-
                 /*Updating Text Screen Data and writing the CSV file headers*/
-                GameHandler.headerTextData = new String[][]{
-                        {"Tesoros", "Vueltas", "Duración Sesión"},
-                        {String.valueOf(counter), String.valueOf(RoundTrips), (int) playedTime_min + " min con " + (int) playedTime_sec + " sec"},
-                        {"Ciclo", "Ángulo", "Alcanzado en"}
-                };
+                csvWriter.relevantData_CSVFile();
                 printMatrix(GameHandler.resumeData);
 
                 /*Setting the date of how the csv file will be saved*/
@@ -225,6 +227,17 @@ public class GameScreen implements Screen {
 
                 /*Loading Name and the updated Data to write the file*/
                 csvWriter.writeCSV(GameHandler.card_MainMenu+"_"+currentDate+".csv");
+
+                /*Label blink while is not the first time the button is clicked*/
+                if(firstTry){
+                    lbCsvPath.setText("Descargado en: "+GameHandler.savedFilePath);
+                    lbCsvPath.setPosition(7, 4);
+                    lbCsvPath.setFontScale(0.6f);
+                    stage.addActor(lbCsvPath);
+                    firstTry = false;
+                }else {
+                    GameHandler.labelBlink(lbCsvPath, 0.1f, 0.1f);
+                }
             }
         });
         btnReturn.addListener(new ChangeListener() {
@@ -242,6 +255,10 @@ public class GameScreen implements Screen {
                 treasures.setInitialX_Position(WORLD_WIDTH+70);
                 /*RESET RESUME DATA*/
                 GameHandler.resumeData.clear();
+                GameHandler.relevantData.clear();
+                lbCsvPath.setText(" ");
+                stage.addActor(lbCsvPath);
+                firstTry = true;
             }
         });
     }

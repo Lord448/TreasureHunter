@@ -243,7 +243,7 @@ public class MainMenu implements Screen {
         configStage.addActor(cbAnglesMode);
 
         /*CHECKBOX 2 - LAPS MODE*/
-        CheckBox cbLapsMode = new CheckBox("Vueltas Completas", skin);
+        CheckBox cbLapsMode = new CheckBox(" Giros", skin);
         cbLapsMode.setPosition(viewportWidth/3 + 50, viewportHeight/2 - 10);
         configStage.addActor(cbLapsMode);
 
@@ -309,13 +309,13 @@ public class MainMenu implements Screen {
     }
     private void AnglesMenu_construct(){
         /*TEXTFIELD - BEGINNING ANGLE*/
-        TextField txtBeginningAngle = new TextField("0", skin);
+        TextField txtBeginningAngle = new TextField("20", skin);
         txtBeginningAngle.setPosition((viewportWidth/5)*2,((viewportHeight/4)*3)-5);
         anglesStage.addActor(txtBeginningAngle);
         GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
 
         /*TEXTFIELD - END ANGLE*/
-        TextField txtEndAngle = new TextField("90", skin);
+        TextField txtEndAngle = new TextField("180", skin);
         txtEndAngle.setPosition((viewportWidth/5)*2,(viewportHeight/4)*2);
         anglesStage.addActor(txtEndAngle);
         GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());

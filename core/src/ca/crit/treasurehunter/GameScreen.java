@@ -17,6 +17,8 @@ import static ca.crit.treasurehunter.GameHandler.printMatrix;
 import static ca.crit.treasurehunter.GameHandler.rotationMode_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.screen;
 import static ca.crit.treasurehunter.GameHandler.speed_MainMenu;
+
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
@@ -97,8 +99,8 @@ public class GameScreen implements Screen {
     }
     @Override
     public void show() {
-        circleBarAngles = new CircleBar( speed_MainMenu, 70, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
-        circleBarLaps = new CircleBar(speed_MainMenu, 70, 15,50, 0, rotationMode_MainMenu);
+        circleBarAngles = new CircleBar( speed_MainMenu, 120, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
+        circleBarLaps = new CircleBar(speed_MainMenu, 120, 15,50, 0, rotationMode_MainMenu);
         stage_constructor();
 
         /*TO DISPLAY INFORMATION*/
@@ -147,14 +149,15 @@ public class GameScreen implements Screen {
 
         renderGraphics(delta);
 
-        if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
+        /*if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
             if(gameMode_MainMenu.equals("angles")){
                 anglesSampling.angles_render(delta, angle_laptop);
             } else if (gameMode_MainMenu.equals("laps")) {
                 lapsSampling.laps_render(delta, angle_laptop);
             }
 
-        } else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
+        }*/
+        if(GameHandler.environment == GameHandler.MOBILE_ENV) {
             if(gameMode_MainMenu.equals("angles")){
                 anglesSampling.angles_render(delta, angle_sensor);
             } else if (gameMode_MainMenu.equals("laps")) {
@@ -215,6 +218,7 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 /*Updating Text Screen Data and writing the CSV file headers*/
+                GameHandler.relevantData.clear();
                 csvWriter.relevantData_CSVFile();
                 printMatrix(GameHandler.resumeData);
 

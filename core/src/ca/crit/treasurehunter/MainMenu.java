@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
@@ -38,20 +39,22 @@ public class MainMenu implements Screen {
         initialState,
         configurationState,
         anglesSate,
-        lapsState
+        lapsState,
+        calibrationState
     }
     public MenuState menuState;
     private final Camera camera;
     private final Viewport viewport, uiViewport;
     private final SpriteBatch batch;
     private final Background background;
-    private final Stage initStage, configStage, anglesStage, lapsStage;
+    private final Stage initStage, configStage, anglesStage, lapsStage, calibrationStage;
     private final Skin skin, skinGlassy;
     private final String skinPath = "Menu/UISkin/uiskin.json";
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
-    private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText;
-    private final CircleBar circleBarAnglesMode,circleBarSpeedAnglesMode, circleBarSpeedLapsMode;
+    private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText, calibrationText;
+    private final CircleBar circleBarAnglesMode,circleBarSpeedAnglesMode, circleBarSpeedLapsMode, circleBarCalibrationMode;
     private final Texture circleArrowsLeftTexture, circleArrowsRightTexture, circleGreen, circleYellow;
+    private TextButton btnCalibrate;
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -82,12 +85,16 @@ public class MainMenu implements Screen {
         rotationText = new GameText("Sentido de Giro", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
         rotationText.setXY(44,65);
         rotationText.setScaleXY(0.17f,0.17f);
+        calibrationText = new GameText("Calibracion", Gdx.files.internal("Fonts/treasurehunter.fnt"), Gdx.files.internal("Fonts/treasurehunter.png"), false);
+        calibrationText.setXY(47,65);
+        calibrationText.setScaleXY(0.17f,0.17f);
 
         /*STAGES*/
         initStage = new Stage(uiViewport);
         configStage = new Stage(uiViewport);
         lapsStage = new Stage(uiViewport);
         anglesStage = new Stage(uiViewport);
+        calibrationStage = new Stage(uiViewport);
 
         /*THE FIRST STAGE TO SEE*/
         menuState = MenuState.initialState;
@@ -95,6 +102,7 @@ public class MainMenu implements Screen {
         /*ANGLES STAGE MENU*/
         circleBarAnglesMode = new CircleBar(x, y, 2);
         circleBarSpeedAnglesMode = new CircleBar(70, 0, 1);
+        circleBarCalibrationMode = new CircleBar(x-63, 0);
         circleArrowsLeftTexture = new Texture("Objects/circle_arrows-Left.png");
         circleArrowsRightTexture = new Texture("Objects/circle_arrows-Right.png");
         circleGreen = new Texture("Objects/circle_user.png");
@@ -109,6 +117,7 @@ public class MainMenu implements Screen {
         ConfigurationMenu_construct();
         AnglesMenu_construct();
         LapsMenu_construct();
+        CalibrationMenu_construct();
     }
 
     @Override
@@ -124,14 +133,14 @@ public class MainMenu implements Screen {
                 gameModeText.draw(batch);
                 break;
             case anglesSate:
-                batch.draw(circleGreen, 35, 45, 30, 30);
+                batch.draw(circleGreen, 35, 45, 30, 30);    //static image
                 beginningAngleText.draw(batch);
-                batch.draw(circleYellow, 35, 30, 30, 30);
+                batch.draw(circleYellow, 35, 30, 30, 30);   //static image
                 endAngleText.draw(batch);
                 speedText.setXY(40,18);
                 speedText.draw(batch);
-                circleBarAnglesMode.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu);
-                circleBarSpeedAnglesMode.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu);
+                circleBarAnglesMode.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu); //Position in map of both circles
+                circleBarSpeedAnglesMode.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu); //Animation to exemplify the computer circle speed
                 if(GameHandler.beginningAngle_MainMenu > GameHandler.endAngle_MainMenu){
                     batch.draw(circleArrowsRightTexture, x+8, y+7, 16, 16);
                 }else {
@@ -144,6 +153,18 @@ public class MainMenu implements Screen {
                 speedText.draw(batch);
                 rotationText.draw(batch);
                 circleBarSpeedLapsMode.render_speedRotation(batch, delta, 53, 1, GameHandler.speed_MainMenu);
+                break;
+            case calibrationState:
+                calibrationText.draw(batch);
+                circleBarCalibrationMode.render_calibrationMenu(x-63, 0, batch, delta);
+                System.out.println("detection: "+circleBarCalibrationMode.calibrationDetection() + " isCalibrated: "+GameHandler.isCalibrated);
+                if(circleBarCalibrationMode.calibrationDetection() == true && GameHandler.isCalibrated == false){
+                    btnCalibrate.setVisible(true);
+                    btnCalibrate.setTouchable(Touchable.enabled);
+                } else {
+                    btnCalibrate.setVisible(false);
+                    btnCalibrate.setTouchable(Touchable.disabled);
+                }
                 break;
         }
         batch.end();
@@ -169,8 +190,11 @@ public class MainMenu implements Screen {
                 lapsStage.draw();
                 lapsStage.act(delta);
                 break;
+            case calibrationState:
+                Gdx.input.setInputProcessor(calibrationStage);
+                calibrationStage.draw();
+                calibrationStage.act(delta);
         }
-
     }
 
     @Override
@@ -203,6 +227,7 @@ public class MainMenu implements Screen {
         configStage.dispose();
         anglesStage.dispose();
         lapsStage.dispose();
+        calibrationStage.dispose();
         skin.dispose();
         skinGlassy.dispose();
         tittleText.dispose();
@@ -212,7 +237,12 @@ public class MainMenu implements Screen {
         endAngleText.dispose();
         speedText.dispose();
         rotationText.dispose();
+        calibrationText.dispose();
     }
+
+    /**------------------------------------------------------------
+     *                     MENU CONSTRUCTORS
+     *----------------------------------------------------------- */
 
     private void InitialMenu_construct(){
         ImageButton btnPlay = new ImageButton(skinGlassyPath,
@@ -399,9 +429,10 @@ public class MainMenu implements Screen {
                 /*ERRORS DETECTION*/
                 boolean isEmpty = strInitAngle.equals("") || strEndAngle.equals("") || strSpeed.equals("");
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
-                /*THERE ARE NO ERRORS*/
+                /*THERE ARE NO ERRORS - EVERYTHING WAS OK*/
                 if(isEmpty == false && Error == 0) {
-                    GameHandler.screen = "game";
+                    //GameHandler.screen = "game";
+                    menuState = MenuState.calibrationState;
                 }
                 /*POSSIBLE COMMITTED ERRORS*/
                 else {
@@ -461,14 +492,14 @@ public class MainMenu implements Screen {
         /*IMAGEBUTTON - ACCEPT*/
         ImageButton btnAccept = new ImageButton(skinGlassyPath,
                 "Menu/ImageButtons/accept_up.png", "Menu/ImageButtons/accept_down.png");
-        btnAccept.setPosition((viewportWidth/7)*5, viewportHeight/9);
+        btnAccept.setPosition((viewportWidth/7)*5, viewportHeight/15);
         btnAccept.setSize(100,100);
         lapsStage.addActor(btnAccept);
 
         /*IMAGEBUTTON - GO BACK*/
         ImageButton btnReturn = new ImageButton(skinGlassyPath,
                 "Menu/ImageButtons/left_up.png", "Menu/ImageButtons/left_down.png");
-        btnReturn.setPosition((viewportWidth/7)*1, viewportHeight/9);
+        btnReturn.setPosition((viewportWidth/7)*1, viewportHeight/15);
         btnReturn.setSize(100,100);
         lapsStage.addActor(btnReturn);
 
@@ -484,10 +515,14 @@ public class MainMenu implements Screen {
                 String strSpeed = txtSpeed.getText().trim();
                 int Error = ErrorNumberDetection(strSpeed);
                 Boolean noErrors = (Error == 0) && (notSelected == false);
-                /*POSSIBLE COMMITED ERRORS*/
+
+                /*THERE ARE NO ERRORS - EVERYTHING IS OK*/
                 if(noErrors){
-                    GameHandler.screen = "game";
-                } else {
+                    //GameHandler.screen = "game";
+                    menuState = MenuState.calibrationState;
+                }
+                /*POSSIBLE COMMITED ERRORS*/
+                else {
                     if (strSpeed.equals("") || Error == 1 || Error == 4) {
                         GameHandler.speed_MainMenu = 0;
                         lbError.setText("Ingresa una velocidad menor a " + (int)maxSpeed);
@@ -543,7 +578,75 @@ public class MainMenu implements Screen {
             }
         });
     }
+    private void CalibrationMenu_construct(){
+        /*IMAGEBUTTON - GO BACK*/
+        ImageButton btnReturn = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/left_up.png", "Menu/ImageButtons/left_down.png");
+        btnReturn.setPosition(viewportWidth/7 - 48, viewportHeight/15);
+        btnReturn.setSize(100,100);
+        calibrationStage.addActor(btnReturn);
 
+        /*IMAGEBUTTON - ACCEPT*/
+        ImageButton btnAccept = new ImageButton(skinGlassyPath,
+                "Menu/ImageButtons/accept_up.png", "Menu/ImageButtons/accept_down.png");
+        btnAccept.setPosition(viewportWidth/2 + 190, viewportHeight/15);
+        btnAccept.setSize(100,100);
+        btnAccept.setVisible(false);
+        calibrationStage.addActor(btnAccept);
+
+        /*BUTTON - CALIBRATE*/
+        btnCalibrate = new TextButton("Calibrar", skin);
+        btnCalibrate.setPosition(viewportWidth/3 + 55, viewportWidth/3);
+        btnCalibrate.setWidth(100);
+        btnCalibrate.setHeight(70);
+        calibrationStage.addActor(btnCalibrate);
+
+        /*LABEL - READY*/
+        Label lbReady = new Label(" ", skin);
+        lbReady.setPosition(viewportWidth/3 +20, viewportWidth/3);
+        calibrationStage.addActor(lbReady);
+
+        /*LABEL - INSTRUCTIONS*/
+        Label lbInstructions = new Label("Por favor, manten la posicion del circulo\n verde a la altura del círculo amarillo", skin);
+        lbInstructions.setPosition(viewportWidth/4 + 25, viewportWidth/2 - 25);
+        calibrationStage.addActor(lbInstructions);
+
+        /*LISTENERS*/
+        btnReturn.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                if(GameHandler.gameMode_MainMenu.equals("laps")){
+                    menuState = MenuState.lapsState;
+                } else if (GameHandler.gameMode_MainMenu.equals("angles")){
+                    menuState = MenuState.anglesSate;
+                }
+                lbReady.setText(" ");
+                GameHandler.isCalibrated = false;
+            }
+        });
+
+        btnCalibrate.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                GameHandler.isCalibrated = true;
+                btnAccept.setVisible(true);
+                lbReady.setText("LISTO, SENSOR CALIBRADO");
+            }
+        });
+
+        btnAccept.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent changeEvent, Actor actor) {
+                if(GameHandler.isCalibrated){
+                    GameHandler.screen = "game";
+                }
+                lbReady.setText(" ");
+            }
+        });
+
+
+    }
+    /*TYPE OF ERRORS*/
     private int ErrorNumberDetection(String strInitAngle, String strEndAngle, String strspeed){
         int initAngle = 0, endAngle = 0, speed = 0;
         try{
@@ -576,4 +679,7 @@ public class MainMenu implements Screen {
         }
         return 0;
     }
+
+    /*GETTERS AND SETTERS*/
+
 }

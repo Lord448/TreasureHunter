@@ -3,7 +3,6 @@ package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
 import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
 import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
-import static ca.crit.treasurehunter.GameHandler.angle_laptop;
 import static ca.crit.treasurehunter.GameHandler.angle_sensor;
 import static ca.crit.treasurehunter.GameHandler.beginningAngle_MainMenu;
 import static ca.crit.treasurehunter.GameHandler.collided;
@@ -99,8 +98,8 @@ public class GameScreen implements Screen {
     }
     @Override
     public void show() {
-        circleBarAngles = new CircleBar( speed_MainMenu, 120, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
-        circleBarLaps = new CircleBar(speed_MainMenu, 120, 15,50, 0, rotationMode_MainMenu);
+        circleBarAngles = new CircleBar( speed_MainMenu, 25, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
+        circleBarLaps = new CircleBar(speed_MainMenu, 25, 15,50, 0, rotationMode_MainMenu);
         stage_constructor();
 
         /*TO DISPLAY INFORMATION*/
@@ -263,6 +262,8 @@ public class GameScreen implements Screen {
                 lbCsvPath.setText(" ");
                 stage.addActor(lbCsvPath);
                 firstTry = true;
+                /*RESET CALIBRATION MENU*/
+                GameHandler.isCalibrated = false;
             }
         });
     }

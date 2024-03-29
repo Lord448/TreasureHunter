@@ -1,5 +1,6 @@
 package ca.crit.treasurehunter;
 import static ca.crit.treasurehunter.GameHandler.RoundTrips;
+import static ca.crit.treasurehunter.GameHandler.angle_calibrated;
 import static ca.crit.treasurehunter.GameHandler.angle_sensor;
 
 import com.badlogic.gdx.Gdx;
@@ -11,9 +12,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class CircleBar {
 
-    /**COMMON ATTRIBUTES*/
+    /**COMMON ATTRIBUTES BETWEEN GAME MODES*/
     float WIDTH = 20, HEIGHT = 20;
-    float x = 3,y = 4;
+    final float x = 3,y = 4;
     Texture userTexture = new Texture("Objects/circle_user.png");
     Texture computerTexture = new Texture("Objects/circle_computer.png");
     Texture circleTexture = new Texture("Objects/circle.png");
@@ -56,7 +57,7 @@ public class CircleBar {
             goForward = true;
         }
         angle_computer = beginningAngle;
-        angle_user = beginningAngle;
+        angle_user = angle_calibrated;
 
         /* MODIFY THE SIZE AND POSITION OF THE SPRITES*/
         user_sprite.setSize(WIDTH, HEIGHT);
@@ -73,19 +74,13 @@ public class CircleBar {
         /*SAMPLING*/
         //timeSamples(this.beginningAngle, this.endAngle); //todo
     }
-
     public void render_AnglesGame(float deltaTime, final SpriteBatch batch){
         batch_sprite_rotations(batch);
         user_movement(deltaTime);
         //PARALLAX AND HUNTING HAPPENS
         GameHandler.reached = isInRange(angle_computer, angle_user);     // Both circles are near each other
+        System.out.println("angles, "+angle_user);
 
-        //RESET USER ANGLE VARIABLE ONLY
-        if(angle_user > 360){
-            angle_user = 0;
-        } else if (angle_user < 0) {
-            angle_user = 360;
-        }
         //----------------------------------
         if(angle_computer < beginningAngle){        // Computer circle arrived to the beginning angle
             goForward = true;                       // Computer circle has to go forward
@@ -124,7 +119,7 @@ public class CircleBar {
         this.beginningAngle = beginningAngle;
         this.direction = direction;
 
-        angle_user = beginningAngle;
+        angle_user = angle_calibrated;
         angle_computer = beginningAngle;
 
         if(beginningAngle == 0 & direction.equals("izquierda")){    //TO RESOLVE START PROBLEMS OF GO ON AT COMPUTER CIRCLE WHEN BEGINNING ANGLE=0
@@ -143,7 +138,6 @@ public class CircleBar {
         user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
         computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
     }
-
     public void render_LapsGame(float deltaTime, final SpriteBatch batch){
         batch_sprite_rotations(batch);
         user_movement(deltaTime);
@@ -192,32 +186,26 @@ public class CircleBar {
         /*STOP COMPUTER CIRCLE IF USER CIRCLE IS TOO FAR AWAY*/
         stop = isFarAway(angle_computer, angle_user);
 
-        /*RESET USER ANGLES VARIABLES*/
-        if(angle_user > 360){
-            angle_user = 0;
-        }
-        if (angle_user < 0) {
-            angle_user = 360;
-        }
+        System.out.println("laps, "+angle_user);
     }
-
 
     /**COMMON METHODS FOR GAME MODE: LAPS & ANGLES*/
     private void user_movement(float deltaTime){
         if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
+            if(angle_user < 0) angle_user = 360;
+            if(angle_user > 360) angle_user = 0;
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
                 angle_user += deltaTime * speed_user;     // How user circle go forward
             }
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
                 angle_user -= deltaTime * speed_user;     // How user circle go back
             }
-            GameHandler.angle_laptop = angle_user;
+            //GameHandler.angle_laptop = angle_user;
         }
         else if(GameHandler.environment == GameHandler.MOBILE_ENV) {
             angle_user = angle_sensor;
         }
     }
-
     private void batch_sprite_rotations(SpriteBatch batch){
         batch.draw(circleTexture, x, y, WIDTH, HEIGHT);
 
@@ -227,13 +215,11 @@ public class CircleBar {
         computer_sprite.setRotation(angle_computer);
         user_sprite.setRotation(angle_user);
     }
-
     private boolean isInRange(float computer, float user){
         float rangeHigh = computer + hunting_maxDistance;    // Maximum angle near to make parallax and hunting
         float rangeLow = computer - hunting_maxDistance;     // Minimum angle near to make parallax and hunting
         return user < rangeHigh && user > rangeLow;
     }
-
     private boolean isFarAway(float computer, float user){
 
         // Circles are far away from each other under a problematic stop function to work correctly:
@@ -252,13 +238,8 @@ public class CircleBar {
             return  computer_isForward || user_isForward;   //exceeds the allowed distance between circles
         }
     }
-    public void dispose(){
-        userTexture.dispose();
-        computerTexture.dispose();
-        circleTexture.dispose();
-    }
 
-    /**CONSTRUCTOR AND RENDER FOR DRAWING CHOSEN ANGLES ON GAME MODE MENU: ANGLES*/
+    /**CONSTRUCTOR AND RENDER FOR GAME MODE MENU: ANGLES*/
     public CircleBar(float x, float y, int numberOfCircles){
         if(numberOfCircles == 1){
             computer_sprite.setSize(WIDTH, HEIGHT);
@@ -296,5 +277,59 @@ public class CircleBar {
         if(angle_computer > 360){
             angle_computer = 0;
         }
+    }
+
+    /**CONSTRUCTOR FOR CALIBRATION MENU*/
+    public CircleBar (float x, float y){
+        speed_user = 60;
+        user_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+        user_sprite.setX(x+35);
+        user_sprite.setY(y);
+
+        computer_sprite.setSize((float) (WIDTH*1.5), (float) (HEIGHT*1.5));
+        computer_sprite.setX(x);
+        computer_sprite.setY(y);
+        /* SET THE RADIUS SPIN CIRCLES*/
+        user_sprite.setOrigin((user_sprite.getWidth()/2), (user_sprite.getHeight()/2));
+        computer_sprite.setOrigin((computer_sprite.getWidth()/2), (computer_sprite.getHeight()/2));
+
+        /*If clause for simulation proposes with a desktop environment*/
+        if(GameHandler.environment == GameHandler.DESKTOP_ENV){
+            angle_user = 90;
+        }
+    }
+
+    public void render_calibrationMenu(float x, float y, final SpriteBatch batch, float delta){
+        /**-----------------------------------------
+         *          CIRCLES AND ARROWS DRAWING
+         *-----------------------------------------*/
+        batch.draw(circleTexture, x+35, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));  //Drawing the black arrow
+        user_movement(delta);                                                              //Green circle movement on a desktop/mobile environment
+        user_sprite.draw(batch);                                                           //Drawing the green circle
+        user_sprite.setRotation(angle_user);                                               //Updating the angle position of green circle
+
+        batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));     //Drawing the black arrow
+        computer_sprite.setRotation(0);                                                 // Setting circle to a 0° angle
+        computer_sprite.draw(batch);                                                    //Green yellow movement on a desktop/mobile environment
+
+        /**----------------------------------------
+         *         CALIBRATION DETECTION
+         *---------------------------------------*/
+        calibrationDetection();
+
+    }
+    public boolean calibrationDetection(){
+        if(angle_user > (360-1) || angle_user < 1){
+            angle_calibrated = angle_user;
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    public void dispose(){
+        userTexture.dispose();
+        computerTexture.dispose();
+        circleTexture.dispose();
     }
 }

@@ -31,8 +31,8 @@ public class GameHandler {
      *                                CIRCLE BAR
      * --------------------------------------------------------------------------
      */
-    public static float angle_sensor = 0;   //  Saves the angle captured by the sensor
-    public static float angle_laptop = 0;   //  Saves the angle updated from the arrows of the laptop
+    public static float angle_sensor = 0;       //  Saves the angle captured by the sensor
+    public static float angle_calibrated = 0;   //  Saves the angle from the calibration menu
 
     /**
      * --------------------------------------------------------------------------
@@ -57,7 +57,7 @@ public class GameHandler {
      *                                  OTHERS
      * --------------------------------------------------------------------------
      */
-    public static int environment = 1;
+    public static int environment = 2;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
 
@@ -67,12 +67,13 @@ public class GameHandler {
      * --------------------------------------------------------------------------
      */
     public static String gameMode_MainMenu;                 //"angles" mode or "laps" mode
-    public static Integer beginningAngle_MainMenu = 0;      //Chosen angle to initialize on Angles game mode
-    public static Integer endAngle_MainMenu = 0;            //Chosen angle to finish on Angles game mode
+    public static Integer beginningAngle_MainMenu = 0;      //Chosen angle to initialize the computer circle on Angles game mode
+    public static Integer endAngle_MainMenu = 0;            //Chosen angle to finish the computer circle on Angles game mode
     public static Integer speed_MainMenu = 0;               //Speed of the computer circle to chase on both game modes
     public static String screen = "menu";                   //Runs the game on the screen: MainMenu/Game/Resume(Information)
     public static String rotationMode_MainMenu;             //The direction of the computer's circle rotation "izquierda" or "derecha"
     public static String card_MainMenu;                     //Saves the user's number card
+    public static boolean isCalibrated;
 
     /**
      * --------------------------------------------------------------------------

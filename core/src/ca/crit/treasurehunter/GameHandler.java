@@ -49,7 +49,6 @@ public class GameHandler {
      */
     public static float treasurePosition;
     public static int counter;
-
     public static boolean onomatopoeiaAppear;
 
     /**
@@ -60,6 +59,16 @@ public class GameHandler {
     public static int environment = 2;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
+
+    /**
+     * --------------------------------------------------------------------------
+     *                          COMMUNICATION WITH BLE
+     * --------------------------------------------------------------------------
+     */
+    public static boolean sensorCalibrationRequest = false; //Send the instruction to the sensor to make calibration
+    public static boolean sensorFinishedCalibration = false; //Indicates that the sensor has finished th calibration
+    public static boolean lowBattReported = false; //ESP32 has reported that it has low battery power
+    public static boolean fullBattReported = false; //ESP32 has reported that it has full battery power
 
     /**
      * --------------------------------------------------------------------------

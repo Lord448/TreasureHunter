@@ -1,11 +1,12 @@
 package ca.crit.treasurehunter;
 
+import static java.lang.Thread.sleep;
+
 import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
@@ -22,12 +23,10 @@ public class AndroidLauncher extends AndroidApplication {
 	private String deviceMacAddress;
 	private RojoBLE rojoTX, rojoRX;
 	private String strValue;
-	private boolean firstEvent = true, flagNormalZone = false, flagRiskZone = false;
+	private boolean isFirstEvent = true, flagNormalZone = false, flagRiskZone = false;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new Main_treasureHunter(), config);
 
 		if(!RojoBLE.checkBLESupport(this, bluetoothAdapter)) {
 			Toast.makeText(getApplicationContext(), "Your device doesn't support bluetooth", Toast.LENGTH_LONG).show();
@@ -43,45 +42,150 @@ public class AndroidLauncher extends AndroidApplication {
 			rojoRX = new RojoBLE(this, txChUUID, RojoBLE.ROJO_TYPE_NOTIFY, deviceMacAddress);
 			rojoRX.setOnCharacteristicNotificationListener(this::onCharacteristicNotificationListener);
 		}
-		//GameHandler.init(GameHandler.MOBILE_ENV);
-		//GameHandler.init(GameHandler.DESKTOP_ENV);
+		GameHandler.init(GameHandler.MOBILE_ENV);
+
+		/**
+		 * THREADS CALL
+		 */
+
+		//Thread for the detection of the global variables and the message with the ESP32
+		Thread BLECommThread = new Thread() {
+			@Override
+			public void run() {
+				try {
+					while (true) {
+						sleep(1000);
+						handler.post(this);
+
+						//Code implementation
+						if(GameHandler.sensorCalibrationRequest) {
+							GameHandler.sensorCalibrationRequest = false;
+							GameHandler.sensorFinishedCalibration = false;
+							rojoTX.sendData("MPUStartCal");
+						}
+						//Code implementation
+
+					}
+				}
+				catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		//Starting the thread
+		BLECommThread.start();
+		//Initializing the game
+		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+		initialize(new Main_treasureHunter(), config);
 	}
 
+	/**
+	 * @brief Listener that handles all the receiving messages
+	 * @param value
+	 */
 	public void onCharacteristicNotificationListener(byte[] value) {
-		final float MaxIncrement = 20; //TODO Fine adjust with kids
-		//final float MaxIncrement_RiskZone = 360-MaxIncrement_NormalZone;
-		float localAngle = 0;
-		float diff;
-
 		strValue = RojoBLE.getString(value);
 
-		//Log.i(TAG, "Received: " + strValue);
-		try {
-			localAngle = Float.parseFloat(strValue);
-			if(firstEvent) {
-				GameHandler.angle_sensor = localAngle;
-				firstEvent = false;
+		if(strIsNumber(strValue)) { //!Normal flow of the code!
+			//The command is a string
+			if (numberHandling(strValue) != 0) {
+				Log.e(TAG, "The parse of the code has been executed with errors");
 			}
 		}
-		catch (NumberFormatException ex) {
-			Log.i(TAG, "Dato que llego no es un numero");
+		else {
+			//Is a command string
+			if(controlStringHandler(strValue) != 0) {
+				Log.e(TAG, "Unknown command");
+			}
+		}
+	}
+
+
+	/**
+	 * @brief  Fixes the circle be drown in angles where actually the sensor is not
+	 * @note   Consider that if localAngle is 360° it will pass to be a 0°
+	 * 		   in order to respect a full circle from 0° to 360°
+	 * @param  msg : Message received to be parsed and processed
+	 * @return result ->
+	 * 			0: If everything is ok
+	 * 		    1: If the execution of the method had errors
+	 */
+	private int numberHandling(String msg) {
+		int result = 0;
+		float diff, angle = 0;
+		final float MaxIncrement = 20; //TODO Fine adjust with kids
+		//final float MaxIncrement_RiskZone = 360-MaxIncrement_NormalZone;
+
+		try {
+			angle = Float.parseFloat(msg);
+			if(isFirstEvent) {
+				GameHandler.angle_sensor = angle;
+				isFirstEvent = false;
+			}
+		}
+		catch (NumberFormatException exception) {
+			Log.i(TAG, "The incoming data is not a number, wrong parse");
+			result = 1;
 		}
 
-		/** FIXES THE CIRCLE BE DROWN IN ANGLES WHERE ACTUALLY THE SENSOR IS NOT
-		 * (Consider that if localAngle is 360° it will pass to be a 0° in order to respect a full circle from 0° to 360°)*/
-		diff = Math.abs(localAngle - GameHandler.angle_sensor);
+		diff = Math.abs(angle - GameHandler.angle_sensor);
 		//Draws the circle between a range of 0° to 360° degrees
 		if(diff < MaxIncrement){
-			GameHandler.angle_sensor = localAngle;
+			GameHandler.angle_sensor = angle;
 		}
 		//Allows the circle to be drown from 10° to 350° passing through 0°
-		if(GameHandler.angle_sensor < MaxIncrement && localAngle >= (360-MaxIncrement)){
-			GameHandler.angle_sensor = localAngle;
+		if(GameHandler.angle_sensor < MaxIncrement && angle >= (360-MaxIncrement)){
+			GameHandler.angle_sensor = angle;
 		}
 		//Allows the circle to be drown from 350° to 10° passing through 0°
-		if(GameHandler.angle_sensor > (360-MaxIncrement) && (localAngle-360+GameHandler.angle_sensor) <= MaxIncrement){
-			GameHandler.angle_sensor = localAngle;
+		if(GameHandler.angle_sensor > (360-MaxIncrement) && (angle-360+GameHandler.angle_sensor) <= MaxIncrement){
+			GameHandler.angle_sensor = angle;
 		}
-		/**-------------------------------------------------------------------------------------------------------------------*/
+		return result;
+	}
+
+	/**
+	 * @brief  Parses the desired command into the system
+	 * @note   Compare strings are being extracted from the ESP32 code
+	 * @param  msg : Message received to be parsed and processed
+	 * @return result ->
+	 * 			0: If everything is ok
+	 * 		    1: If the execution of the method had errors
+	 */
+	private int controlStringHandler(String msg) {
+		final String sensorCalDone = "MPUReady";
+		final String lowBatt = "LowBatt";
+		final String fullBatt = "FullBatt";
+
+		int result = 0;
+		if(msg.equals(sensorCalDone)) {
+			GameHandler.sensorFinishedCalibration = true;
+		}
+		else if(msg.equals(lowBatt)) {
+			GameHandler.lowBattReported = true;
+		}
+		else if(msg.equals(fullBatt)) {
+			GameHandler.fullBattReported = true;
+		}
+		else {
+			result = 1;
+		}
+		return result;
+	}
+
+	/**
+	 * @brief  It checks if a hole string is a number
+	 * @param  input String that will be evaluated
+	 * @return True if the input is a number
+	 */
+	private boolean strIsNumber(String input) {
+		assert input != null;
+		for(char c : input.toCharArray()) {
+			if(!Character.isDigit(c)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

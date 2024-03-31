@@ -11,6 +11,7 @@ public class DesktopLauncher {
 		config.setWindowedMode(800, 480);
 		config.setForegroundFPS(60);
 		config.setTitle("TreasureHunter");
+		GameHandler.init(GameHandler.DESKTOP_ENV);
 		new Lwjgl3Application(new Main_treasureHunter(), config);
 	}
 }

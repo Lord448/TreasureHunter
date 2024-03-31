@@ -1,6 +1,5 @@
 package ca.crit.treasurehunter;
-import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
-import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
+
 import static ca.crit.treasurehunter.GameHandler.viewportHeight;
 import static ca.crit.treasurehunter.GameHandler.viewportWidth;
 
@@ -9,16 +8,12 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -28,12 +23,11 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import ca.crit.treasurehunter.Resources.ImageButton;
-import ca.crit.treasurehunter.Resources.PrintTag;
 
 public class MainMenu implements Screen {
     
     private final String TAG = "MainMenu";
-    public static float x = 95, y = 35;     //Coordenates for example of circle angles in Angles Game Mode
+    public static float x = 95, y = 35;     //Coordinates for example of circle angles in Angles Game Mode
     public static float maxSpeed = 100;
     private enum MenuState{
         initialState,
@@ -628,9 +622,21 @@ public class MainMenu implements Screen {
         btnCalibrate.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                GameHandler.isCalibrated = true;
-                btnAccept.setVisible(true);
-                lbReady.setText("LISTO, SENSOR CALIBRADO");
+                if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
+                    GameHandler.isCalibrated = true;
+                    btnAccept.setVisible(true);
+                    lbReady.setText("LISTO, SENSOR CALIBRADO");
+                }
+                else if (GameHandler.environment == GameHandler.MOBILE_ENV) {
+                    //Requesting the calibration
+                    GameHandler.sensorCalibrationRequest = true;
+                    lbReady.setText("SENSOR CALIBRANDO...\n NO MUEVAS EL TIMON");
+                    //Waiting for the calibration to be finished
+                    while(!GameHandler.sensorFinishedCalibration);
+                    //Sensor has finished the calibration
+                    lbReady.setText("LISTO, SENSOR CALIBRADO");
+                    btnAccept.setVisible(true);
+                }
             }
         });
 

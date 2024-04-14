@@ -23,7 +23,7 @@ public class AndroidLauncher extends AndroidApplication {
 	private String deviceMacAddress;
 	private RojoBLE rojoTX, rojoRX;
 	private String strValue;
-	private boolean isFirstEvent = true, flagNormalZone = false, flagRiskZone = false;
+	private boolean isFirstEvent = true;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,8 +48,10 @@ public class AndroidLauncher extends AndroidApplication {
 		 * THREADS CALL
 		 */
 
-
-		//Thread for the detection of the global variables and the message with the ESP32
+		/**
+		 * @brief Thread that handles the detection of the global variables
+		 *        and the bidirectional messages with the ESP32
+		 */
 		Thread BLECommThread = new Thread() {
 			@Override
 			public void run() {
@@ -155,20 +157,10 @@ public class AndroidLauncher extends AndroidApplication {
 	 */
 	private int controlStringHandler(String msg) {
 		final String sensorCalDone = "MPUReady";
-		final String lowBatt = "LowBatt";
-		final String fullBatt = "FullBatt";
 
 		int result = 0;
 		if(msg.contains(sensorCalDone)) {
 			GameHandler.sensorFinishedCalibration = true;
-			Log.i(TAG, msg);
-		}
-		else if(msg.contains(lowBatt)) {
-			GameHandler.lowBattReported = true;
-			Log.i(TAG, msg);
-		}
-		else if(msg.contains(fullBatt)) {
-			GameHandler.fullBattReported = true;
 			Log.i(TAG, msg);
 		}
 		else {

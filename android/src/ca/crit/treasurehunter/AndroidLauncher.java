@@ -48,6 +48,7 @@ public class AndroidLauncher extends AndroidApplication {
 		 * THREADS CALL
 		 */
 
+
 		//Thread for the detection of the global variables and the message with the ESP32
 		Thread BLECommThread = new Thread() {
 			@Override
@@ -55,10 +56,11 @@ public class AndroidLauncher extends AndroidApplication {
 				try {
 					while (true) {
 						sleep(1000);
-						handler.post(this);
+						//handler.post(this);
 
 						//Code implementation
 						if(GameHandler.sensorCalibrationRequest) {
+							//Calibration request ordered from the game
 							GameHandler.sensorCalibrationRequest = false;
 							GameHandler.sensorFinishedCalibration = false;
 							rojoTX.sendData("MPUStartCal");
@@ -72,7 +74,6 @@ public class AndroidLauncher extends AndroidApplication {
 				}
 			}
 		};
-
 		//Starting the thread
 		BLECommThread.start();
 		//Initializing the game
@@ -87,8 +88,8 @@ public class AndroidLauncher extends AndroidApplication {
 	public void onCharacteristicNotificationListener(byte[] value) {
 		strValue = RojoBLE.getString(value);
 
-		if(strIsNumber(strValue)) { //!Normal flow of the code!
-			//The command is a string
+		if(strIsFloatNumber(strValue)) { //!Normal flow of the code!
+			//The command is a number
 			if (numberHandling(strValue) != 0) {
 				Log.e(TAG, "The parse of the code has been executed with errors");
 			}
@@ -96,11 +97,10 @@ public class AndroidLauncher extends AndroidApplication {
 		else {
 			//Is a command string
 			if(controlStringHandler(strValue) != 0) {
-				Log.e(TAG, "Unknown command");
+				Log.e(TAG, "Unknown BLE command [" + strValue.replace("\n", "") + "]");
 			}
 		}
 	}
-
 
 	/**
 	 * @brief  Fixes the circle be drown in angles where actually the sensor is not
@@ -159,14 +159,17 @@ public class AndroidLauncher extends AndroidApplication {
 		final String fullBatt = "FullBatt";
 
 		int result = 0;
-		if(msg.equals(sensorCalDone)) {
+		if(msg.contains(sensorCalDone)) {
 			GameHandler.sensorFinishedCalibration = true;
+			Log.i(TAG, msg);
 		}
-		else if(msg.equals(lowBatt)) {
+		else if(msg.contains(lowBatt)) {
 			GameHandler.lowBattReported = true;
+			Log.i(TAG, msg);
 		}
-		else if(msg.equals(fullBatt)) {
+		else if(msg.contains(fullBatt)) {
 			GameHandler.fullBattReported = true;
+			Log.i(TAG, msg);
 		}
 		else {
 			result = 1;
@@ -179,13 +182,14 @@ public class AndroidLauncher extends AndroidApplication {
 	 * @param  input String that will be evaluated
 	 * @return True if the input is a number
 	 */
-	private boolean strIsNumber(String input) {
+	private boolean strIsFloatNumber(String input) {
 		assert input != null;
-		for(char c : input.toCharArray()) {
-			if(!Character.isDigit(c)) {
-				return false;
-			}
+		try{
+			Float.parseFloat(input);
+			return true;
 		}
-		return true;
+		catch(NumberFormatException ex){
+			return false;
+		}
 	}
 }

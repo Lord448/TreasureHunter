@@ -47,7 +47,7 @@ public class MainMenu implements Screen {
     private final String skinPath = "Menu/UISkin/uiskin.json";
     private final String skinGlassyPath = "Menu/GlassyUI/assets/glassy-ui.json";
     private final GameText tittleText, cardText, gameModeText, beginningAngleText, endAngleText, speedText, rotationText, calibrationText;
-    private final CircleBar circleBarAnglesMode,circleBarSpeedAnglesMode, circleBarSpeedLapsMode, circleBarCalibrationMode;
+    private final CircleBar circleBarAnglesMode, circleBarSpeedAnglesMode, circleBarSpeedLapsMode, circleBarCalibrationMode;
     private final Texture circleArrowsLeftTexture, circleArrowsRightTexture, circleGreen, circleYellow;
     private TextButton btnCalibrate;
     public MainMenu() {
@@ -152,12 +152,6 @@ public class MainMenu implements Screen {
             case calibrationState:
                 calibrationText.draw(batch);
                 circleBarCalibrationMode.render_calibrationMenu(x-63, 0, batch, delta);
-                System.out.println("detection: "+circleBarCalibrationMode.calibrationDetection() + " isCalibrated: "+GameHandler.isCalibrated);
-                if(circleBarCalibrationMode.calibrationDetection() == true && GameHandler.isCalibrated == false){
-                    btnCalibrate.setTouchable(Touchable.enabled);
-                } else {
-                    btnCalibrate.setTouchable(Touchable.disabled);
-                }
                 break;
         }
         batch.end();
@@ -592,12 +586,12 @@ public class MainMenu implements Screen {
         btnCalibrate.setPosition(viewportWidth/3 + 80, viewportWidth/5 + 20);
         btnCalibrate.setWidth(80);
         btnCalibrate.setHeight(45);
-        btnCalibrate.setColor(Color.RED);
+        //btnCalibrate.setColor(Color.RED);
         calibrationStage.addActor(btnCalibrate);
 
         /*LABEL - READY*/
         Label lbReady = new Label(" ", skin);
-        lbReady.setPosition(viewportWidth/3 +20, viewportWidth/3);
+        lbReady.setPosition(viewportWidth/3 +20, viewportWidth/3-13);
         calibrationStage.addActor(lbReady);
 
         /*LABEL - INSTRUCTIONS*/
@@ -640,6 +634,7 @@ public class MainMenu implements Screen {
                 if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
                     GameHandler.isCalibrated = true;
                     lbReady.setText("LISTO, SENSOR CALIBRADO");
+                    System.out.println("BLE Calibration command simulated");
                 }
                 else if (GameHandler.environment == GameHandler.MOBILE_ENV) {
                     //Requesting the calibration

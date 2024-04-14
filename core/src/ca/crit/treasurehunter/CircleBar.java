@@ -309,7 +309,7 @@ public class CircleBar {
         user_sprite.setRotation(angle_user);                                               //Updating the angle position of green circle
 
         batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));     //Drawing the black arrow
-        computer_sprite.setRotation(0);                                                 // Setting circle to a 0° angle
+        computer_sprite.setRotation(15);                                                 // Setting circle to a 0° angle
         computer_sprite.draw(batch);                                                    //Green yellow movement on a desktop/mobile environment
 
         /**----------------------------------------

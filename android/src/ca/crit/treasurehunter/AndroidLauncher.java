@@ -26,6 +26,7 @@ public class AndroidLauncher extends AndroidApplication {
 	private boolean isFirstEvent = true;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
+		final int[] MAX_NUM_TRIES = {5};
 		super.onCreate(savedInstanceState);
 
 		if(!RojoBLE.checkBLESupport(this, bluetoothAdapter)) {
@@ -51,23 +52,48 @@ public class AndroidLauncher extends AndroidApplication {
 		/**
 		 * @brief Thread that handles the detection of the global variables
 		 *        and the bidirectional messages with the ESP32
+		 * @note  The periodic call of the thread it's modified depending if the
+		 * 		  ESP32 it's connected or not, in order to react more quickly at some events
 		 */
+		//Variables declared as final pointer in order to use a static RAM
+		// location so it can be accessible from the Thread
+		final int[] timeCounter = {0}; //This variable it's not local to the thread so it cannot be destroyed if the thread gets killed
+		final int[] numberOfTries = {0}; //This variable it's not local the thread so it cannot be destroyed if the thread gets killed
+
 		Thread BLECommThread = new Thread() {
 			@Override
 			public void run() {
+				//Initialization routine of the task
+				timeCounter[0] = 0;
 				try {
+					//Infinite loop of the task
 					while (true) {
-						sleep(1000);
-						//handler.post(this);
-
-						//Code implementation
 						if(GameHandler.sensorCalibrationRequest) {
 							//Calibration request ordered from the game
 							GameHandler.sensorCalibrationRequest = false;
 							GameHandler.sensorFinishedCalibration = false;
 							rojoTX.sendData("MPUStartCal");
+							sleep(1000); //Setting resolution to 1 sec
 						}
-						//Code implementation
+						else if(GameHandler.gattServerDisconnected){
+							//The ESP32 has disconnected from the android device
+							if(timeCounter[0] == 10){
+								//Try to reconnect each 5 seconds
+								Log.i(TAG, "Trying to reconnect to the gatt server");
+
+								numberOfTries[0]++;
+								timeCounter[0] = 0;
+
+								if(numberOfTries == MAX_NUM_TRIES){
+									//The number of tries has reached it's maximum
+								}
+							}
+							timeCounter[0]++;
+							sleep(100); //Changing resolution to 100ms
+						}
+						else{
+							sleep(1000); //Default resolution to 1 sec
+						}
 
 					}
 				}

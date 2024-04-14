@@ -6,6 +6,7 @@ import static ca.crit.treasurehunter.GameHandler.viewportWidth;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -153,10 +154,8 @@ public class MainMenu implements Screen {
                 circleBarCalibrationMode.render_calibrationMenu(x-63, 0, batch, delta);
                 System.out.println("detection: "+circleBarCalibrationMode.calibrationDetection() + " isCalibrated: "+GameHandler.isCalibrated);
                 if(circleBarCalibrationMode.calibrationDetection() == true && GameHandler.isCalibrated == false){
-                    btnCalibrate.setVisible(true);
                     btnCalibrate.setTouchable(Touchable.enabled);
                 } else {
-                    btnCalibrate.setVisible(false);
                     btnCalibrate.setTouchable(Touchable.disabled);
                 }
                 break;
@@ -585,14 +584,15 @@ public class MainMenu implements Screen {
                 "Menu/ImageButtons/accept_up.png", "Menu/ImageButtons/accept_down.png");
         btnAccept.setPosition(viewportWidth/2 + 190, viewportHeight/15);
         btnAccept.setSize(100,100);
-        btnAccept.setVisible(false);
+        btnAccept.setVisible(true);
         calibrationStage.addActor(btnAccept);
 
         /*BUTTON - CALIBRATE*/
         btnCalibrate = new TextButton("Calibrar", skin);
-        btnCalibrate.setPosition(viewportWidth/3 + 55, viewportWidth/3);
-        btnCalibrate.setWidth(100);
-        btnCalibrate.setHeight(70);
+        btnCalibrate.setPosition(viewportWidth/3 + 80, viewportWidth/5 + 20);
+        btnCalibrate.setWidth(80);
+        btnCalibrate.setHeight(45);
+        btnCalibrate.setColor(Color.RED);
         calibrationStage.addActor(btnCalibrate);
 
         /*LABEL - READY*/
@@ -601,9 +601,24 @@ public class MainMenu implements Screen {
         calibrationStage.addActor(lbReady);
 
         /*LABEL - INSTRUCTIONS*/
-        Label lbInstructions = new Label("Por favor, manten la posicion del circulo\n verde a la altura del círculo amarillo", skin);
-        lbInstructions.setPosition(viewportWidth/4 + 25, viewportWidth/2 - 25);
+        Label lbInstructions = new Label(
+                "Paso 1. Manten el modulo a la altura del\n" +
+                    "circulo amarillo que tienes en pantalla.\n"+
+                    "Puedes apoyarte de la marca visible en la pared." + "\n\n"
+                +"Paso 2. Presiona el botón de Calibrar y \n" +
+                        "espera el mensaje de confirmacion." + "\n\n"
+                +"Paso 3. Presiona el boton de palomita.", skin);
+        lbInstructions.setPosition(20, viewportWidth/2 - 150);
         calibrationStage.addActor(lbInstructions);
+
+        /*LABEL - INSTRUCTIONS 2*/
+        Label lbInstructions2 = new Label(
+                "NOTA:\n" +
+                        "Para comprobar una calibracion\n"+
+                        "exitosa, verifica que el circulo\n" +
+                        "verde se mueva correctamente" ,skin);
+        lbInstructions2.setPosition(viewportWidth/2 + 90, viewportWidth/2 - 70);
+        calibrationStage.addActor(lbInstructions2);
 
         /*LISTENERS*/
         btnReturn.addListener(new ChangeListener() {
@@ -624,7 +639,6 @@ public class MainMenu implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
                     GameHandler.isCalibrated = true;
-                    btnAccept.setVisible(true);
                     lbReady.setText("LISTO, SENSOR CALIBRADO");
                 }
                 else if (GameHandler.environment == GameHandler.MOBILE_ENV) {
@@ -635,7 +649,6 @@ public class MainMenu implements Screen {
                     while(!GameHandler.sensorFinishedCalibration);
                     //Sensor has finished the calibration
                     lbReady.setText("LISTO, SENSOR CALIBRADO");
-                    btnAccept.setVisible(true);
                 }
             }
         });

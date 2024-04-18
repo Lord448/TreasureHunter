@@ -29,6 +29,7 @@ public class RojoBLE {
     private static final String TAG = "RojoBLE";
     private final int typeCharacteristic;
     private final Context context;
+    public boolean bleAutoConnect = false;
     private BluetoothGattCharacteristic mCharacteristic;
     private BluetoothGatt mGatt;
     private BluetoothDevice mDevice;
@@ -115,7 +116,7 @@ public class RojoBLE {
             ActivityCompat.requestPermissions((Activity) context, btPermissions, REQUEST_ENABLE_BT);
             ActivityCompat.requestPermissions((Activity) context, btPermissions, REQUEST_ENABLE_ADMIN_BT);
         }
-        mGatt = mDevice.connectGatt(this.context, false, GattCallback);
+        mGatt = mDevice.connectGatt(this.context, bleAutoConnect, GattCallback);
         Log.i(TAG, "Finished construct");
     }
 
@@ -168,7 +169,15 @@ public class RojoBLE {
             ActivityCompat.requestPermissions((Activity) context, btPermissions, REQUEST_ENABLE_BT);
             ActivityCompat.requestPermissions((Activity) context, btPermissions, REQUEST_ENABLE_ADMIN_BT);
         }
-        mGatt = mDevice.connectGatt(this.context, false, GattCallback);
+        mGatt = mDevice.connectGatt(this.context, bleAutoConnect, GattCallback);
+    }
+
+    /**
+     * @brief Connects the android device to the gatt server
+     */
+    @SuppressLint("MissingPermission")
+    public void connectToGattServer() {
+        mGatt = mDevice.connectGatt(this.context, bleAutoConnect, GattCallback);
     }
 
     /**

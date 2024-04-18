@@ -42,9 +42,9 @@ public class AndroidLauncher extends AndroidApplication {
 			rojoTX = new RojoBLE(this, rxChUUID, RojoBLE.ROJO_TYPE_WRITE, deviceMacAddress);
 			rojoRX = new RojoBLE(this, txChUUID, RojoBLE.ROJO_TYPE_NOTIFY, deviceMacAddress);
 			rojoRX.setOnCharacteristicNotificationListener(this::onCharacteristicNotificationListener);
+			rojoRX.setOnGattServerDisconnectedListener(this::onGattServerDisconnectedListener);
+			rojoRX.setOnGattServerConnectedListener(this::onGattServerConnectedListener);
 		}
-		GameHandler.init(GameHandler.MOBILE_ENV);
-
 		/**
 		 * THREADS CALL
 		 */
@@ -80,12 +80,16 @@ public class AndroidLauncher extends AndroidApplication {
 							if(timeCounter[0] == 10){
 								//Try to reconnect each 5 seconds
 								Log.i(TAG, "Trying to reconnect to the gatt server");
-
+								rojoRX.connectToGattServer();
 								numberOfTries[0]++;
 								timeCounter[0] = 0;
 
-								if(numberOfTries == MAX_NUM_TRIES){
+								if(numberOfTries[0] == MAX_NUM_TRIES[0]){
 									//The number of tries has reached it's maximum
+									rojoRX.bleAutoConnect = true;
+									numberOfTries[0] = 0;
+									Log.e(TAG, "Could not connect to the gatt server waiting 5 seconds");
+									sleep(5000);
 								}
 							}
 							timeCounter[0]++;
@@ -105,8 +109,19 @@ public class AndroidLauncher extends AndroidApplication {
 		//Starting the thread
 		BLECommThread.start();
 		//Initializing the game
+		GameHandler.init(GameHandler.MOBILE_ENV);
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new Main_treasureHunter(), config);
+	}
+
+	public void onGattServerConnectedListener() {
+		//Notifying to the game
+		GameHandler.gattServerDisconnected = false;
+	}
+
+	public void onGattServerDisconnectedListener() {
+		//Notifying to the game
+		GameHandler.gattServerDisconnected = true;
 	}
 
 	/**

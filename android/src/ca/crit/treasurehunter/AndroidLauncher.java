@@ -1,10 +1,9 @@
 package ca.crit.treasurehunter;
 
-import static java.lang.Thread.sleep;
-
 import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
@@ -28,6 +27,7 @@ public class AndroidLauncher extends AndroidApplication {
 	protected void onCreate (Bundle savedInstanceState) {
 		final int[] MAX_NUM_TRIES = {5};
 		super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		if(!RojoBLE.checkBLESupport(this, bluetoothAdapter)) {
 			Toast.makeText(getApplicationContext(), "Your device doesn't support bluetooth", Toast.LENGTH_LONG).show();
@@ -162,6 +162,7 @@ public class AndroidLauncher extends AndroidApplication {
 
 		try {
 			angle = Float.parseFloat(msg);
+			Log.i(TAG, "Data raw: " + angle);
 			if(isFirstEvent) {
 				GameHandler.angle_sensor = angle;
 				isFirstEvent = false;
@@ -171,6 +172,8 @@ public class AndroidLauncher extends AndroidApplication {
 			Log.i(TAG, "The incoming data is not a number, wrong parse");
 			result = 1;
 		}
+
+		//GameHandler.angle_sensor = angle;
 
 		diff = Math.abs(angle - GameHandler.angle_sensor);
 		//Draws the circle between a range of 0° to 360° degrees
@@ -185,6 +188,7 @@ public class AndroidLauncher extends AndroidApplication {
 		if(GameHandler.angle_sensor > (360-MaxIncrement) && (angle-360+GameHandler.angle_sensor) <= MaxIncrement){
 			GameHandler.angle_sensor = angle;
 		}
+		Log.i(TAG, "Data filtered: " + GameHandler.angle_sensor);
 		return result;
 	}
 

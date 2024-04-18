@@ -213,7 +213,7 @@ public class CircleBar {
         user_sprite.draw(batch);
 
         computer_sprite.setRotation(angle_computer);
-        user_sprite.setRotation(angle_user);
+        user_sprite.setRotation(angle_user+15);
     }
     private boolean isInRange(float computer, float user){
         float rangeHigh = computer + hunting_maxDistance;    // Maximum angle near to make parallax and hunting
@@ -261,7 +261,7 @@ public class CircleBar {
     }
     public void batch_sprite_rotation(float x, float y, final SpriteBatch batch, float initAngle, float endAngle){
         batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));
-        user_sprite.setRotation(initAngle);
+        user_sprite.setRotation(initAngle+15);
         user_sprite.draw(batch);
 
         computer_sprite.setRotation(endAngle);
@@ -306,7 +306,7 @@ public class CircleBar {
         batch.draw(circleTexture, x+35, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));  //Drawing the black arrow
         user_movement(delta);                                                              //Green circle movement on a desktop/mobile environment
         user_sprite.draw(batch);                                                           //Drawing the green circle
-        user_sprite.setRotation(angle_user);                                               //Updating the angle position of green circle
+        user_sprite.setRotation(angle_user+15);                                               //Updating the angle position of green circle
 
         batch.draw(circleTexture, x, y, (float) (WIDTH*1.5), (float) (HEIGHT*1.5));     //Drawing the black arrow
         computer_sprite.setRotation(15);                                                 // Setting circle to a 0° angle

@@ -34,7 +34,7 @@ public class AndroidLauncher extends AndroidApplication {
 	private float MaxIncrement = DEFAULT_MAX_INCREMENT;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
-		final int[] MAX_NUM_TRIES = {5};
+
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -66,13 +66,16 @@ public class AndroidLauncher extends AndroidApplication {
 		 * 		  ESP32 it's connected or not, in order to react more quickly at some events
 		 */
 		//Variables declared as final pointer in order to use a static RAM
-		// location so it can be accessible from the Thread
-		final int[] timeCounter = {0}; //This variable it's not local to the thread so it cannot be destroyed if the thread gets killed
-		final int[] numberOfTries = {0}; //This variable it's not local the thread so it cannot be destroyed if the thread gets killed
+		//location so it can be accessible from the Thread
+		//This variables are not local to the thread so they cannot be destroyed if the thread gets killed
+		final int[] MAX_NUM_TRIES = {5}; //Number of tries for the error reporting
+		final int[] timeCounter = {0}; //Counts the time that has passed to make an intent of reconnection
+		final int[] numberOfTries = {0}; //Counts the number of tries to report the disconnection as error
 
 		Thread BLECommThread = new Thread() {
 			@Override
 			public void run() {
+				final String ThTAG = "BLECommTh";
 				//Initialization routine of the task
 				timeCounter[0] = 0;
 				try {
@@ -89,9 +92,11 @@ public class AndroidLauncher extends AndroidApplication {
 						}
 						else if(GameHandler.gattServerDisconnected){
 							//The ESP32 has disconnected from the android device
-							if(timeCounter[0] == 10){
+							final int SECONDS_TO_RECONNECT = 10;
+
+							if(timeCounter[0] == SECONDS_TO_RECONNECT){
 								//Try to reconnect each 5 seconds
-								Log.i(TAG, "Trying to reconnect to the gatt server");
+								Log.i(ThTAG, "Trying to reconnect to the gatt server");
 								rojoRX.connectToGattServer();
 								numberOfTries[0]++;
 								timeCounter[0] = 0;
@@ -100,7 +105,7 @@ public class AndroidLauncher extends AndroidApplication {
 									//The number of tries has reached it's maximum
 									rojoRX.bleAutoConnect = true;
 									numberOfTries[0] = 0;
-									Log.e(TAG, "Could not connect to the gatt server waiting 5 seconds");
+									Log.e(ThTAG, "Could not connect to the gatt server waiting 5 seconds");
 									sleep(5000);
 								}
 							}

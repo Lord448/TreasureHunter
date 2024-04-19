@@ -1,5 +1,6 @@
 package ca.crit.treasurehunter;
 
+import static java.lang.Thread.sleep;
 import static ca.crit.treasurehunter.GameHandler.viewportHeight;
 import static ca.crit.treasurehunter.GameHandler.viewportWidth;
 
@@ -641,7 +642,14 @@ public class MainMenu implements Screen {
                     GameHandler.sensorCalibrationRequest = true;
                     lbReady.setText("SENSOR CALIBRANDO...\n NO MUEVAS EL TIMON");
                     //Waiting for the calibration to be finished
-                    while(!GameHandler.sensorFinishedCalibration);
+                    while(!GameHandler.sensorFinishedCalibration) {
+                        try {
+                            sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
                     //Sensor has finished the calibration
                     lbReady.setText("LISTO, SENSOR CALIBRADO");
                 }
@@ -651,9 +659,7 @@ public class MainMenu implements Screen {
         btnAccept.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent changeEvent, Actor actor) {
-                if(GameHandler.isCalibrated){
-                    GameHandler.screen = "game";
-                }
+                GameHandler.screen = "game";
                 lbReady.setText(" ");
             }
         });

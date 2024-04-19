@@ -632,6 +632,8 @@ public class MainMenu implements Screen {
         btnCalibrate.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                final int POLL_TIMEOUT = 5000;
+
                 if(GameHandler.environment == GameHandler.DESKTOP_ENV) {
                     GameHandler.isCalibrated = true;
                     lbReady.setText("LISTO, SENSOR CALIBRADO");
@@ -642,7 +644,14 @@ public class MainMenu implements Screen {
                     GameHandler.sensorCalibrationRequest = true;
                     lbReady.setText("SENSOR CALIBRANDO...\n NO MUEVAS EL TIMON");
                     //Waiting for the calibration to be finished
+                    long time = System.currentTimeMillis();
                     while(!GameHandler.sensorFinishedCalibration) {
+                        //If the characteristic failed to write or timeout
+                        if(GameHandler.failedToWriteCharacteristic ||
+                           System.currentTimeMillis() - time > POLL_TIMEOUT) {
+                            lbReady.setText("ERROR AL CALIBRAR");
+                            return;
+                        }
                         try {
                             sleep(10);
                         } catch (InterruptedException e) {

@@ -59,7 +59,7 @@ public class GameHandler {
      *                                  OTHERS
      * --------------------------------------------------------------------------
      */
-    public static int environment = 2;
+    public static int environment = 1;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
     public static float timer;
@@ -147,15 +147,18 @@ public class GameHandler {
 
     /*Just for BitmapFont objects*/
     public static void infiniteBlink(BitmapFont bitmapFont,SpriteBatch batch,String text, Integer X, Integer Y){
+        final int timeON = 2; //Controls the time on of the blink in seconds
+        final int timeOFF = 1; //Controls the time off of the blink in seconds
+
         timer += Gdx.graphics.getDeltaTime();
         batch.begin();
-            if(timer < 1){
+            if(timer < timeON){
                 bitmapFont.draw(batch, text, X, Y);     //The text Appears
             }
-            if (timer > 1 && timer < 2) {
+            if (timer > timeON && timer < timeON+timeOFF) {
                 bitmapFont.draw(batch, " ", X, Y);  //The text disappears
             }
-            if(timer > 2){
+            if(timer > timeON+timeOFF){
                 timer = 0;
             }
         batch.end();

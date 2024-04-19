@@ -72,6 +72,7 @@ public class GameHandler {
     public static boolean sensorCalibrationRequest = false; //Send the instruction to the sensor to make calibration
     public static boolean sensorFinishedCalibration = false; //Indicates that the sensor has finished the calibration
     public static boolean gattServerDisconnected = false; //Indicates that the ESP32 has been disconnect from android the device
+    public static boolean failedToWriteCharacteristic = false;
 
     /**
      * --------------------------------------------------------------------------

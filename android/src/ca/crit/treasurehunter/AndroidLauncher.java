@@ -82,7 +82,9 @@ public class AndroidLauncher extends AndroidApplication {
 							//Calibration request ordered from the game
 							GameHandler.sensorCalibrationRequest = false;
 							GameHandler.sensorFinishedCalibration = false;
-							rojoTX.sendData("MPUStartCal");
+							if(!rojoTX.sendData("MPUStartCal")) {
+								GameHandler.failedToWriteCharacteristic = true;
+							}
 							sleep(1000); //Setting resolution to 1 sec
 						}
 						else if(GameHandler.gattServerDisconnected){

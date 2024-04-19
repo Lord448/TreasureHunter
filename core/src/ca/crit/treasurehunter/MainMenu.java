@@ -535,6 +535,7 @@ public class MainMenu implements Screen {
         cbLeft.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
                 if(cbLeft.isChecked()){
                     cbRight.setChecked(false);
                 }
@@ -544,6 +545,7 @@ public class MainMenu implements Screen {
         cbRight.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                Gdx.input.setOnscreenKeyboardVisible(false);
                 if(cbRight.isChecked()){
                     cbLeft.setChecked(false);
                 }

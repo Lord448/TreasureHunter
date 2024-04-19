@@ -591,7 +591,7 @@ public class MainMenu implements Screen {
 
         /*LABEL - READY*/
         Label lbReady = new Label(" ", skin);
-        lbReady.setPosition(viewportWidth/3 +20, viewportWidth/3-13);
+        lbReady.setPosition(viewportWidth - 210, viewportWidth/2 - 200);
         calibrationStage.addActor(lbReady);
 
         /*LABEL - INSTRUCTIONS*/

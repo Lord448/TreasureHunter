@@ -1,6 +1,9 @@
 package ca.crit.treasurehunter;
 
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Timer;
 
@@ -59,6 +62,7 @@ public class GameHandler {
     public static int environment = 2;
     public static final int MOBILE_ENV = 1;
     public static final int DESKTOP_ENV = 2;
+    public static float timer;
 
     /**
      * --------------------------------------------------------------------------
@@ -139,5 +143,21 @@ public class GameHandler {
                 }, visibleTime); // 1 segundo de espera
             }
         }, invisibleTime); // 1 segundo de espera
+    }
+
+    /*Just for BitmapFont objects*/
+    public static void infiniteBlink(BitmapFont bitmapFont,SpriteBatch batch,String text, Integer X, Integer Y){
+        timer += Gdx.graphics.getDeltaTime();
+        batch.begin();
+            if(timer < 1){
+                bitmapFont.draw(batch, text, X, Y);     //The text Appears
+            }
+            if (timer > 1 && timer < 2) {
+                bitmapFont.draw(batch, " ", X, Y);  //The text disappears
+            }
+            if(timer > 2){
+                timer = 0;
+            }
+        batch.end();
     }
 }

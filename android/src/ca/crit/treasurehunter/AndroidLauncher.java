@@ -1,11 +1,14 @@
 package ca.crit.treasurehunter;
 
+import static java.lang.Thread.sleep;
+
 import android.bluetooth.BluetoothAdapter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
@@ -18,17 +21,24 @@ public class AndroidLauncher extends AndroidApplication {
 	public final UUID rxChUUID = UUID.fromString("0f16c6ae-7c3a-11ee-b962-0242ac120002");
 	private static final String TAG = "AndroidLauncher";
 	private static final String deviceName = "ShoulderWheel";
+	private final int MAX_NO_CONDITIONS_MET = 50;
+	private final float DEFAULT_MAX_INCREMENT = 20;
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	private String deviceMacAddress;
 	private RojoBLE rojoTX, rojoRX;
 	private String strValue;
 	private boolean isFirstEvent = true;
+	private boolean moveCircle = false;
+	private int noSafeCondCounter = 0;
+	private float sensorAngle = 0;
+	private float MaxIncrement = DEFAULT_MAX_INCREMENT;
 	@Override
 	protected void onCreate (Bundle savedInstanceState) {
 		final int[] MAX_NUM_TRIES = {5};
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+		GameHandler.init(GameHandler.MOBILE_ENV);
 		if(!RojoBLE.checkBLESupport(this, bluetoothAdapter)) {
 			Toast.makeText(getApplicationContext(), "Your device doesn't support bluetooth", Toast.LENGTH_LONG).show();
 			finish();
@@ -98,7 +108,25 @@ public class AndroidLauncher extends AndroidApplication {
 						else{
 							sleep(1000); //Default resolution to 1 sec
 						}
+						if(moveCircle) {
+							//Program is requesting a circle position fix
+							final int ANGLE_BOUNDS = 2;
 
+							moveCircle = false;
+							//Blocking the thread
+							do {
+								//Moving the circle
+								if(GameHandler.angle_sensor > sensorAngle)
+									GameHandler.angle_sensor++;
+								else if(GameHandler.angle_sensor < sensorAngle)
+									GameHandler.angle_sensor--;
+								if(GameHandler.angle_sensor >= 360 || GameHandler.angle_sensor <= 0)
+									GameHandler.angle_sensor = 0;
+								sleep(1);
+							} while(!(GameHandler.angle_sensor > sensorAngle-ANGLE_BOUNDS
+									&& GameHandler.angle_sensor < sensorAngle+ANGLE_BOUNDS));
+							MaxIncrement = DEFAULT_MAX_INCREMENT;
+						}
 					}
 				}
 				catch (InterruptedException e) {
@@ -109,7 +137,7 @@ public class AndroidLauncher extends AndroidApplication {
 		//Starting the thread
 		BLECommThread.start();
 		//Initializing the game
-		GameHandler.init(GameHandler.MOBILE_ENV);
+
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new Main_treasureHunter(), config);
 	}
@@ -146,7 +174,7 @@ public class AndroidLauncher extends AndroidApplication {
 	}
 
 	/**
-	 * @brief  Fixes the circle be drown in angles where actually the sensor is not
+	 * @brief  Handles the data if it's a valid position for the circle and makes process
 	 * @note   Consider that if localAngle is 360° it will pass to be a 0°
 	 * 		   in order to respect a full circle from 0° to 360°
 	 * @param  msg : Message received to be parsed and processed
@@ -156,40 +184,60 @@ public class AndroidLauncher extends AndroidApplication {
 	 */
 	private int numberHandling(String msg) {
 		int result = 0;
-		float diff, angle = 0;
-		final float MaxIncrement = 20; //TODO Fine adjust with kids
-		//final float MaxIncrement_RiskZone = 360-MaxIncrement_NormalZone;
-
+		//Parsing the signal
 		try {
-			angle = Float.parseFloat(msg);
-			Log.i(TAG, "Data raw: " + angle);
-			if(isFirstEvent) {
-				GameHandler.angle_sensor = angle;
+			sensorAngle = Float.parseFloat(msg);
+			//Log.i(TAG, "Data raw: " + sensorAngle);
+			if (isFirstEvent) {
+				GameHandler.angle_sensor = sensorAngle;
 				isFirstEvent = false;
 			}
-		}
-		catch (NumberFormatException exception) {
+		} catch (NumberFormatException exception) {
 			Log.i(TAG, "The incoming data is not a number, wrong parse");
 			result = 1;
 		}
 
-		//GameHandler.angle_sensor = angle;
+		//Processing the signal
+		try {
+			signalProcessing(sensorAngle);
+		} catch (Exception irqEx) {
+			irqEx.printStackTrace();
+			result = 1;
+		}
+		return result;
+	}
 
-		diff = Math.abs(angle - GameHandler.angle_sensor);
+	/**
+	 * @brief Uses bounds and the difference to avoid undesired jumps of the circle
+	 * 		  Also reports to the Circle Thread if the circle got stuck
+	 * @param angle: Angle that te sensor reports from the Gatt server
+	 */
+	private void signalProcessing(float angle) {
+		float diff = Math.abs(angle - GameHandler.angle_sensor);
+
 		//Draws the circle between a range of 0° to 360° degrees
 		if(diff < MaxIncrement){
 			GameHandler.angle_sensor = angle;
 		}
-		//Allows the circle to be drown from 10° to 350° passing through 0°
-		if(GameHandler.angle_sensor < MaxIncrement && angle >= (360-MaxIncrement)){
+		//Allows the circle to stay from 10° to 350° passing through 0°
+		else if(GameHandler.angle_sensor < MaxIncrement && angle >= (360-MaxIncrement)){
 			GameHandler.angle_sensor = angle;
 		}
-		//Allows the circle to be drown from 350° to 10° passing through 0°
-		if(GameHandler.angle_sensor > (360-MaxIncrement) && (angle-360+GameHandler.angle_sensor) <= MaxIncrement){
+		//Allows the circle to stay from 350° to 10° passing through 0°
+		else if(GameHandler.angle_sensor > (360-MaxIncrement) && (angle-360+GameHandler.angle_sensor) <= MaxIncrement){
 			GameHandler.angle_sensor = angle;
 		}
-		Log.i(TAG, "Data filtered: " + GameHandler.angle_sensor);
-		return result;
+		else {
+			//None of the safe conditions were met
+			noSafeCondCounter++;
+			if(noSafeCondCounter >= MAX_NO_CONDITIONS_MET) {
+				MaxIncrement = 0;
+				moveCircle = true;
+				noSafeCondCounter = 0;
+			}
+
+		}
+		//Log.i(TAG, "Data of gamehandler: " + GameHandler.angle_sensor);
 	}
 
 	/**
@@ -202,11 +250,15 @@ public class AndroidLauncher extends AndroidApplication {
 	 */
 	private int controlStringHandler(String msg) {
 		final String sensorCalDone = "MPUReady";
+		final String sensorCalInit = "MPUCal";
 
 		int result = 0;
 		if(msg.contains(sensorCalDone)) {
 			GameHandler.sensorFinishedCalibration = true;
-			Log.i(TAG, msg);
+			Log.i(TAG, "Finished calibration");
+		}
+		else if(msg.contains(sensorCalInit)) {
+			Log.i(TAG, "Starting calibration");
 		}
 		else {
 			result = 1;

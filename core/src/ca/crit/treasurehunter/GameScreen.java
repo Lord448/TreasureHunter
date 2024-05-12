@@ -98,7 +98,7 @@ public class GameScreen implements Screen {
     }
     @Override
     public void show() {
-        circleBarAngles = new CircleBar( speed_MainMenu, 25, 15,50, beginningAngle_MainMenu, endAngle_MainMenu);
+        circleBarAngles = new CircleBar( speed_MainMenu, 25, 20,50, beginningAngle_MainMenu, endAngle_MainMenu);
         circleBarLaps = new CircleBar(speed_MainMenu, 25, 15,50, 0, rotationMode_MainMenu);
         stage_constructor();
 

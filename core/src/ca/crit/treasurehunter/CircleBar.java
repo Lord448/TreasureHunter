@@ -217,11 +217,11 @@ public class CircleBar {
     }
     private boolean isInRange(float computer, float user){
         float rangeHigh = computer + hunting_maxDistance;    // Maximum angle near to make parallax and hunting
-        float rangeLow = computer - hunting_maxDistance;     // Minimum angle near to make parallax and hunting
+        float rangeLow = computer - hunting_maxDistance-30;     // Minimum angle near to make parallax and hunting
         return user < rangeHigh && user > rangeLow;
     }
     private boolean isFarAway(float computer, float user){
-
+        computer -= 15;
         // Circles are far away from each other under a problematic stop function to work correctly:
         boolean riskZone = (computer>(360-farAway_maxDistance) && user<farAway_maxDistance) || (user>(360-farAway_maxDistance) && computer<farAway_maxDistance);
         if(riskZone){

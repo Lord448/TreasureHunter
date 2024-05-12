@@ -97,7 +97,7 @@ public class MainMenu implements Screen {
 
         /*ANGLES STAGE MENU*/
         circleBarAnglesMode = new CircleBar(x, y, 2);
-        circleBarSpeedAnglesMode = new CircleBar(70, 0, 1);
+        circleBarSpeedAnglesMode = new CircleBar(5, 40, 1);
         circleBarCalibrationMode = new CircleBar(x-63, 0);
         circleArrowsLeftTexture = new Texture("Objects/circle_arrows-Left.png");
         circleArrowsRightTexture = new Texture("Objects/circle_arrows-Right.png");
@@ -133,10 +133,10 @@ public class MainMenu implements Screen {
                 beginningAngleText.draw(batch);
                 batch.draw(circleYellow, 35, 30, 30, 30);   //static image
                 endAngleText.draw(batch);
-                speedText.setXY(40,18);
+                speedText.setXY(5, 65);
                 speedText.draw(batch);
                 circleBarAnglesMode.batch_sprite_rotation(x, y, batch, GameHandler.beginningAngle_MainMenu, GameHandler.endAngle_MainMenu); //Position in map of both circles
-                circleBarSpeedAnglesMode.render_speedRotation(batch, delta, 70, 0, GameHandler.speed_MainMenu); //Animation to exemplify the computer circle speed
+                circleBarSpeedAnglesMode.render_speedRotation(batch, delta, 5, 40, GameHandler.speed_MainMenu); //Animation to exemplify the computer circle speed
                 if(GameHandler.beginningAngle_MainMenu > GameHandler.endAngle_MainMenu){
                     batch.draw(circleArrowsRightTexture, x+8, y+7, 16, 16);
                 }else {
@@ -340,7 +340,7 @@ public class MainMenu implements Screen {
 
         /*TEXTFIELD - SPEED*/
         TextField txtSpeed = new TextField("25", skin);
-        txtSpeed.setPosition(viewportWidth/3 +20, viewportHeight/10);
+        txtSpeed.setPosition(50, viewportHeight/2);
         txtSpeed.setSize(85, 30);
         anglesStage.addActor(txtSpeed);
         GameHandler.speed_MainMenu = Integer.valueOf(txtSpeed.getText().trim());

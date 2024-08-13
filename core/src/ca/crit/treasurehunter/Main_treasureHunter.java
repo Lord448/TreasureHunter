@@ -2,7 +2,6 @@ package ca.crit.treasurehunter;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,10 +9,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.Objects;
 
 public class Main_treasureHunter extends Game {
-	GameScreen gameScreen;
-	MainMenu menuScreen;
-	BitmapFont bFDisconnected;
-	SpriteBatch spriteBatch;
+	private GameScreen gameScreen;
+	private MainMenu menuScreen;
+	private BitmapFont bFDisconnected;
+	private SpriteBatch spriteBatch;
+
 	@Override
 	public void create () {
 		gameScreen = new GameScreen();
@@ -37,13 +37,12 @@ public class Main_treasureHunter extends Game {
 		if(Objects.equals(GameHandler.screen, "resume")){
 			GameHandler.screen = "";
 		}
-		//Gdx.input.isKeyPressed(Input.Keys.BACKSPACE)
 		if(GameHandler.gattServerDisconnected){
-			String string = "Error: Verifica tu conexion Bluetooth y\n" +
+			final String bleErrorString = "Error: Verifica tu conexion Bluetooth y\n" +
 					"          reconecta el modulo por favor";
 			bFDisconnected.getData().setScale(0.8F, 0.8F);
 			bFDisconnected.setColor(Color.RED);
-			GameHandler.infiniteBlink(bFDisconnected, spriteBatch, string, 170, 150);
+            GameHandler.infiniteBlink(bFDisconnected, spriteBatch, bleErrorString, 170, 150);
 		}
 	}
 	

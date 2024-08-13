@@ -1,19 +1,21 @@
 package ca.crit.treasurehunter;
 
 import static java.lang.Thread.sleep;
+import static ca.crit.treasurehunter.GameHandler.WORLD_HEIGHT;
+import static ca.crit.treasurehunter.GameHandler.WORLD_WIDTH;
 import static ca.crit.treasurehunter.GameHandler.viewportHeight;
 import static ca.crit.treasurehunter.GameHandler.viewportWidth;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -21,16 +23,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
+import java.util.Objects;
 
 import ca.crit.treasurehunter.Resources.ImageButton;
 
 public class MainMenu implements Screen {
-    
-    private final String TAG = "MainMenu";
-    public static float x = 95, y = 35;     //Coordinates for example of circle angles in Angles Game Mode
-    public static float maxSpeed = 100;
     private enum MenuState{
         initialState,
         configurationState,
@@ -38,6 +39,10 @@ public class MainMenu implements Screen {
         lapsState,
         calibrationState
     }
+
+    private final String TAG = "MainMenu";
+    public static float x = 95, y = 35;     //Coordinates for example of circle angles in Angles Game Mode
+    public static float maxSpeed = 100;
     public MenuState menuState;
     private final Camera camera;
     private final Viewport viewport, uiViewport;
@@ -51,6 +56,7 @@ public class MainMenu implements Screen {
     private final CircleBar circleBarAnglesMode, circleBarSpeedAnglesMode, circleBarSpeedLapsMode, circleBarCalibrationMode;
     private final Texture circleArrowsLeftTexture, circleArrowsRightTexture, circleGreen, circleYellow;
     private TextButton btnCalibrate;
+
     public MainMenu() {
         camera = new OrthographicCamera();
         viewport = new StretchViewport(GameHandler.WORLD_WIDTH, GameHandler.WORLD_HEIGHT, camera);
@@ -272,6 +278,9 @@ public class MainMenu implements Screen {
         btnNext.setSize(100,100);
         configStage.addActor(btnNext);
 
+        /* CREATE HIDE KEYBOARD BUTTON */
+        createHideKeyboardBtn(configStage);
+
         /*LISTENERS*/
         txtCard.addListener(new ChangeListener() {
             @Override
@@ -304,14 +313,14 @@ public class MainMenu implements Screen {
         btnNext.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                if(GameHandler.gameMode_MainMenu == "angles" && GameHandler.card_MainMenu != null){
+                if(Objects.equals(GameHandler.gameMode_MainMenu, "angles") && GameHandler.card_MainMenu != null){
                     menuState = MenuState.anglesSate;
                 }
-                if(GameHandler.gameMode_MainMenu == "laps" && GameHandler.card_MainMenu != null){
+                if(Objects.equals(GameHandler.gameMode_MainMenu, "laps") && GameHandler.card_MainMenu != null){
                     menuState = MenuState.lapsState;
                 }
                 /*ERRORS DETECTION*/
-                if((cbAnglesMode.isChecked() == false && cbLapsMode.isChecked() == false) || GameHandler.card_MainMenu == null ){
+                if((!cbAnglesMode.isChecked() && !cbLapsMode.isChecked()) || GameHandler.card_MainMenu == null ){
                     menuState = MenuState.configurationState;
                     if(GameHandler.card_MainMenu == null){
                         lbError.setText("Por favor ingrese un numero de carnet");
@@ -362,7 +371,18 @@ public class MainMenu implements Screen {
         /*LABEL - ERRORS*/
         Label lbError = new Label("", skin);
 
+        /* CREATE HIDE KEYBOARD BUTTON */
+        createHideKeyboardBtn(anglesStage);
+
         /*LISTENERS*/
+        //Listener for the numeric pad
+        txtEndAngle.addListener(new FocusListener() {
+            @Override
+            public boolean handle(Event event) {
+                Gdx.input.setOnscreenKeyboardVisible(true, Input.OnscreenKeyboardType.NumberPad);
+                return super.handle(event);
+            }
+        });
         txtEndAngle.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -370,11 +390,19 @@ public class MainMenu implements Screen {
                 String strEndAngle = txtEndAngle.getText().trim();
                 String strSpeed = txtSpeed.getText().trim();
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
-                if(strEndAngle.equals("") || Error == 1){    // To not crash the game if the text field is empty or theres something different from a number
+                if(strEndAngle.isEmpty() || Error == 1){    // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.endAngle_MainMenu = 0;
                 }else {
                     GameHandler.endAngle_MainMenu = Integer.valueOf(txtEndAngle.getText().trim());
                 }
+            }
+        });
+        //Listener for the numeric pad
+        txtBeginningAngle.addListener(new FocusListener() {
+            @Override
+            public boolean handle(Event event) {
+                Gdx.input.setOnscreenKeyboardVisible(true, Input.OnscreenKeyboardType.NumberPad);
+                return super.handle(event);
             }
         });
         txtBeginningAngle.addListener(new ChangeListener() {
@@ -384,11 +412,18 @@ public class MainMenu implements Screen {
                 String strEndAngle = txtEndAngle.getText().trim();
                 String strSpeed = txtSpeed.getText().trim();
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
-                if(strInitAngle.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
+                if(strInitAngle.isEmpty() || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.beginningAngle_MainMenu = 0;
                 }else {
                     GameHandler.beginningAngle_MainMenu = Integer.valueOf(txtBeginningAngle.getText().trim());
                 }
+            }
+        });
+        txtSpeed.addListener(new FocusListener() {
+            @Override
+            public boolean handle(Event event) {
+                Gdx.input.setOnscreenKeyboardVisible(true, Input.OnscreenKeyboardType.NumberPad);
+                return super.handle(event);
             }
         });
         txtSpeed.addListener(new ChangeListener() {
@@ -398,7 +433,7 @@ public class MainMenu implements Screen {
                 String strEndAngle = txtEndAngle.getText().trim();
                 String strSpeed = txtSpeed.getText().trim();
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
-                if(strSpeed.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
+                if(strSpeed.isEmpty() || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.speed_MainMenu = 0;
                 } else if (Error == 4) {
                     GameHandler.speed_MainMenu = 0;
@@ -415,10 +450,10 @@ public class MainMenu implements Screen {
                 String strEndAngle = txtEndAngle.getText().trim();
                 String strSpeed = txtSpeed.getText().trim();
                 /*ERRORS DETECTION*/
-                boolean isEmpty = strInitAngle.equals("") || strEndAngle.equals("") || strSpeed.equals("");
+                boolean isEmpty = strInitAngle.isEmpty() || strEndAngle.isEmpty() || strSpeed.isEmpty();
                 int Error = ErrorNumberDetection(strInitAngle, strEndAngle, strSpeed);
                 /*THERE ARE NO ERRORS - EVERYTHING WAS OK*/
-                if(isEmpty == false && Error == 0) {
+                if(!isEmpty && Error == 0) {
                     //GameHandler.screen = "game";
                     menuState = MenuState.calibrationState;
                 }
@@ -495,14 +530,17 @@ public class MainMenu implements Screen {
         Label lbError = new Label("Selecciona un sentido de giro por favor", skin);
         lbError.setPosition(viewportWidth/3 - 20, viewportHeight/4 + 15);
 
+        /* CREATE HIDE KEYBOARD BUTTON */
+        createHideKeyboardBtn(lapsStage);
+
         /*LISTENERS*/
         btnAccept.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                Boolean notSelected = cbLeft.isChecked() == false && cbRight.isChecked() == false;
+                boolean notSelected = !cbLeft.isChecked() && !cbRight.isChecked();
                 String strSpeed = txtSpeed.getText().trim();
                 int Error = ErrorNumberDetection(strSpeed);
-                Boolean noErrors = (Error == 0) && (notSelected == false);
+                boolean noErrors = (Error == 0) && (!notSelected);
 
                 /*THERE ARE NO ERRORS - EVERYTHING IS OK*/
                 if(noErrors){
@@ -511,14 +549,13 @@ public class MainMenu implements Screen {
                 }
                 /*POSSIBLE COMMITED ERRORS*/
                 else {
-                    if (strSpeed.equals("") || Error == 1 || Error == 4) {
+                    if (strSpeed.isEmpty() || Error == 1 || Error == 4) {
                         GameHandler.speed_MainMenu = 0;
                         lbError.setText("Ingresa una velocidad menor a " + (int)maxSpeed);
-                        menuState = MenuState.lapsState;
                     } else{
                         lbError.setText("Selecciona un sentido de giro por favor");
-                        menuState = MenuState.lapsState;
                     }
+                    menuState = MenuState.lapsState;
                     lapsStage.addActor(lbError);
                 }
             }
@@ -557,7 +594,7 @@ public class MainMenu implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 String strSpeed = txtSpeed.getText().trim();
                 int Error = ErrorNumberDetection(strSpeed);
-                if(strSpeed.equals("") || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
+                if(strSpeed.isEmpty() || Error == 1){   // To not crash the game if the text field is empty or theres something different from a number
                     GameHandler.speed_MainMenu = 0;
                 } else if (Error == 4) {
                     GameHandler.speed_MainMenu = 0;
@@ -676,6 +713,26 @@ public class MainMenu implements Screen {
         });
 
 
+    }
+    /*CLASS METHODS*/
+    /**
+     * @brief This method creates a text button that will appear on the left corner of the screen
+     *        it's intended for those UI menus that needs to hide the keyboard to continue
+     * @param stage Stage that will have the button
+     */
+    private void createHideKeyboardBtn(Stage stage) {
+        TextButton btnHideKeyboard = new TextButton("Oculta Teclado", skin);
+        btnHideKeyboard.setPosition(WORLD_WIDTH+468, WORLD_HEIGHT+370);
+        btnHideKeyboard.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                //Gdx.input.setOnscreenKeyboardVisible(false);
+                Gdx.input.setOnscreenKeyboardVisible(false, Input.OnscreenKeyboardType.Default);
+                //Hiding the numeric pad keyboards
+                Gdx.input.setOnscreenKeyboardVisible(false, Input.OnscreenKeyboardType.NumberPad);
+            }
+        });
+        stage.addActor(btnHideKeyboard);
     }
     /*TYPE OF ERRORS*/
     private int ErrorNumberDetection(String strInitAngle, String strEndAngle, String strspeed){

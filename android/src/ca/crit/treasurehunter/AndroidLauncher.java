@@ -161,7 +161,7 @@ public class AndroidLauncher extends AndroidApplication {
 
 	/**
 	 * @brief Listener that handles all the receiving messages
-	 * @param value
+	 * @param value Data that arrives from the BLE device
 	 */
 	public void onCharacteristicNotificationListener(byte[] value) {
 		strValue = RojoBLE.getString(value);
@@ -178,13 +178,14 @@ public class AndroidLauncher extends AndroidApplication {
 				Log.e(TAG, "Unknown BLE command [" + strValue.replace("\n", "") + "]");
 			}
 		}
+		Log.i(TAG, strValue);
 	}
 
 	/**
 	 * @brief  Handles the data if it's a valid position for the circle and makes process
 	 * @note   Consider that if localAngle is 360° it will pass to be a 0°
 	 * 		   in order to respect a full circle from 0° to 360°
-	 * @param  msg : Message received to be parsed and processed
+	 * @param  msg Message received to be parsed and processed
 	 * @return result ->
 	 * 			0: If everything is ok
 	 * 		    1: If the execution of the method had errors
@@ -217,7 +218,7 @@ public class AndroidLauncher extends AndroidApplication {
 	/**
 	 * @brief Uses bounds and the difference to avoid undesired jumps of the circle
 	 * 		  Also reports to the Circle Thread if the circle got stuck
-	 * @param angle: Angle that te sensor reports from the Gatt server
+	 * @param angle Angle that te sensor reports from the Gatt server
 	 */
 	private void signalProcessing(float angle) {
 		float diff = Math.abs(angle - GameHandler.angle_sensor);
@@ -250,7 +251,7 @@ public class AndroidLauncher extends AndroidApplication {
 	/**
 	 * @brief  Parses the desired command into the system
 	 * @note   Compare strings are being extracted from the ESP32 code
-	 * @param  msg : Message received to be parsed and processed
+	 * @param  msg Message received to be parsed and processed
 	 * @return result ->
 	 * 			0: If everything is ok
 	 * 		    1: If the execution of the method had errors
